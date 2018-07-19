@@ -37,6 +37,10 @@ namespace DrawOpenGL
 					        Center = new Vector(-2, 0, 4),
 					        Radius = 1,
 					        Color = Color.Green
+				        }, new Sphere {
+							Center = new Vector(0,2,5),
+							Radius = 1.03f,
+							Color = Color.DeepPink
 				        }
 			        }),
 			        Lights = new List<Light>(new[] {
@@ -53,7 +57,7 @@ namespace DrawOpenGL
 					        Type = LightType.Direct,
 					        Intensity = 0.2f,
 					        Direction = new Vector(1, 4, 4)
-				        },
+				        }
 			        })
 		        };
 
@@ -71,17 +75,30 @@ namespace DrawOpenGL
 		        
 				var render = new Render(canvasManager.Canvas, scene, options);
 
-		        var sw = Stopwatch.StartNew();
-				render.Process();
+		        ProcessRender(render);
 
-				sw.Stop();
-
-		        Console.WriteLine($"Rendered in {sw.Elapsed} ms");
+		        canvasManager.Resize += (sender, eventArgs) => {
+					canvasManager.Canvas.Clear();
+			        options.CanvasWidth = canvasManager.Canvas.Width;
+			        options.CanvasHeight = canvasManager.Canvas.Height;
+			        ProcessRender(render);
+		        };
 
 				Thread.Sleep(-1);
 	        }
         }
 
+		static void ProcessRender(Render render) {
+			
+
+			render.Process();
+			var sw = Stopwatch.StartNew();
+			render.Process();
+
+			sw.Stop();
+
+			Console.WriteLine($"Rendered in {sw.Elapsed} ms");
+		}
 	    
     }
 

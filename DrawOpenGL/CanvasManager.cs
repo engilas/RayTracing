@@ -16,10 +16,15 @@ namespace DrawOpenGL
 			    _canvas = new Canvas(width, height, bgColor);
 			    _canvas.Load += (_, __) => {_mres.Set(); };
 			    _canvas.Closed +=  CanvasOnClosed;
+				_canvas.Resize += CanvasOnResize;
 			    _canvas.Run(frameRate);
 		    });
 		    _workerThread.Start();
 		    _mres.Wait();
+	    }
+
+	    private void CanvasOnResize(object sender, EventArgs e) {
+		    Resize?.Invoke(sender, e);
 	    }
 
 	    private void CanvasOnClosed(object sender, EventArgs e) {
@@ -27,6 +32,7 @@ namespace DrawOpenGL
 	    }
 
 	    public event EventHandler<EventArgs> CancasClosed;
+	    public event EventHandler<EventArgs> Resize;
 		
 	    public void Dispose() {
 			_canvas.Stop();
