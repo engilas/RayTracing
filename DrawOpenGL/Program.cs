@@ -27,7 +27,7 @@ namespace DrawOpenGL
 					        Center = new Vector(0, -1, 3),
 					        Radius = 1,
 					        Color = Color.Red,
-							Specular = 500
+					        Specular = 500
 				        },
 				        new Sphere {
 					        Center = new Vector(2, 0, 4),
@@ -40,29 +40,32 @@ namespace DrawOpenGL
 					        Radius = 1,
 					        Color = Color.Green,
 					        Specular = 10
-				        }, new Sphere {
-							Center = new Vector(0,-5001,0),
-							Radius = 5000f,
-							Color = Color.Yellow,
+				        },
+				        new Sphere {
+					        Center = new Vector(0, -5001, 0),
+					        Radius = 5000f,
+					        Color = Color.Yellow,
 					        Specular = 600
 				        }
 			        }),
-			        Lights = new List<Light>(new[] {
-				        new Light {
-					        Type = LightType.Ambient,
-					        Intensity = 0.2f
-				        },
-				        new Light {
-					        Type = LightType.Point,
-					        Intensity = 0.6f,
-					        Position = new Vector(2, 1, 0)
-				        },
-				        new Light {
-					        Type = LightType.Direct,
-					        Intensity = 0.2f,
-					        Direction = new Vector(1, 4, 4)
-				        }
-			        })
+			        Lights = new List<Light>(
+				        new[] {
+                            new Light {
+                                Type = LightType.Ambient,
+                                Intensity = 0.2f
+                            },
+					        //new Light {
+						       // Type = LightType.Point,
+						       // Intensity = 0.6f,
+						       // Position = new Vector(2, 1, 0)
+					        //},
+					        new Light {
+						        Type = LightType.Direct,
+						        Intensity = 0.99f,
+						        Direction = new Vector(1, 4, 4)
+					        }
+                        }
+			        )
 		        };
 
 		        var options = new RenderOptions {

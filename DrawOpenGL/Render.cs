@@ -34,6 +34,19 @@ namespace DrawOpenGL
 	    }
 
 	    private Color TraceRay(Vector O, Vector D, int tMin, int tMax) {
+		    var (closest_sphere, closest_t) = ClosestIntersection(O, D, tMin, tMax);
+
+		    if (closest_sphere == null)
+			    return _options.BgColor;
+
+		    var P = O.Add(D.Multiply(closest_t));
+		    var N = P.Subtract(closest_sphere.Center);
+		    N = N.Multiply(1 / N.Lenght());
+		    var lightning = ComputeLighting(P, N, D.Multiply(-1), closest_sphere.Specular, tMax);
+		    return Multiply(lightning, closest_sphere.Color);
+	    }
+
+	    private (Sphere, float) ClosestIntersection(Vector O, Vector D, float tMin, float tMax) {
 		    var closest_t = float.PositiveInfinity;
 		    Sphere closest_sphere = null;
 		    foreach (var sphere in _scene.Spheres) {
@@ -47,14 +60,7 @@ namespace DrawOpenGL
 				    closest_sphere = sphere;
 			    }
 		    }
-		    if (closest_sphere == null)
-			    return _options.BgColor;
-
-		    var P = O.Add(D.Multiply(closest_t));
-		    var N = P.Subtract(closest_sphere.Center);
-		    N = N.Multiply(1 / N.Lenght());
-		    var lightning = ComputeLighting(P, N, D.Multiply(-1), closest_sphere.Specular);
-		    return Multiply(lightning, closest_sphere.Color);
+		    return (closest_sphere, closest_t);
 	    }
 
 	    private (float, float) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
@@ -89,7 +95,7 @@ namespace DrawOpenGL
 		    return new Color(r, g, b, 255);
 	    }
 
-	    private float ComputeLighting(Vector P, Vector N, Vector V, int s) {
+	    private float ComputeLighting(Vector P, Vector N, Vector V, int s, float tMax) {
 		    var i = 0.0f;
 		    Vector L = null;
 		    foreach (var light in _scene.Lights) {
@@ -102,6 +108,10 @@ namespace DrawOpenGL
 				    if (light.Type == LightType.Direct) {
 					    L = light.Direction;
 				    }
+
+				    var (shadow_sphere, _) = ClosestIntersection(P, L, 0.001f, tMax);
+				    if (shadow_sphere != null)
+						continue;
 
 				    var nDotL = N.DotProduct(L);
 
