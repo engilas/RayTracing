@@ -10,6 +10,8 @@ namespace DrawOpenGL
 	    public int ViewportWidth{ get; set; }
 	    public int ViewportHeight{ get; set; } 
 
+		public int RecursionDepth { get; set; }
+
 	    public Color BgColor{ get; set; } 
 
 	    public Vector CameraPos { get; set; }

@@ -24,8 +24,10 @@ namespace DrawOpenGL
 		    for (int x = -xEdge; x < xEdge; x++)
 		    for (int y = -yEdge; y < yEdge; y++) {
 			    var D = CanvasToViewport(x, y);
-			    var color = TraceRay(_options.CameraPos, D, 1, int.MaxValue);
-			    _canvas.DrawPoint(x,y, color);
+			    var color = TraceRay(_options.CameraPos, D, 1, int.MaxValue, _options.RecursionDepth);
+
+
+			    _canvas.DrawPoint(x,y, color.Clamp().ToColor());
 		    }
 	    }
 
@@ -33,18 +35,29 @@ namespace DrawOpenGL
 		    return new Vector(x * _options.ViewportWidth / _options.CanvasWidth, y * _options.ViewportHeight / _options.CanvasHeight, _options.ViewportDistance);
 	    }
 
-	    private Color TraceRay(Vector O, Vector D, int tMin, int tMax) {
+	    private Vector TraceRay(Vector O, Vector D, float tMin, float tMax, int depth) {
 		    var (closest_sphere, closest_t) = ClosestIntersection(O, D, tMin, tMax);
 
 		    if (closest_sphere == null)
-			    return _options.BgColor;
+			    return Vector.FromColor(_options.BgColor);
+
+		    var view = D.Multiply(-1);
 
 		    var P = O.Add(D.Multiply(closest_t));
 		    var N = P.Subtract(closest_sphere.Center);
 		    N = N.Multiply(1 / N.Lenght());
-		    var lightning = ComputeLighting(P, N, D.Multiply(-1), closest_sphere.Specular, tMax);
-		    return Multiply(lightning, closest_sphere.Color);
-	    }
+		    var local_color = Vector.FromColor(closest_sphere.Color)
+			    .Multiply(ComputeLighting(P, N, view, closest_sphere.Specular, tMax));
+			
+            var r = closest_sphere.Reflect;
+            if (depth <= 0 || r <= 0)
+                return local_color;
+
+            var R = ReflectRay(D.Multiply(-1), N);
+            var reflectedColor = TraceRay(P, R, 0.1f, float.PositiveInfinity, depth - 1);
+
+            return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
+        }
 
 	    private (Sphere, float) ClosestIntersection(Vector O, Vector D, float tMin, float tMax) {
 		    var closest_t = float.PositiveInfinity;
@@ -80,20 +93,6 @@ namespace DrawOpenGL
 		    var t2 = (-k2 - (float)Math.Sqrt(discr)) / (2 * k1);
 		    return (t1, t2);
 	    }
-		
-	    private Color Multiply(float k, Color color) {
-		    var r = (int) (k * color.R);
-			var g = (int) (k * color.G);
-		    var b = (int) (k * color.B);
-
-			int normalize(int c) => c > 255 ? 255 : c < 0 ? 0 : c;
-
-		    r = normalize(r);
-		    g = normalize(g);
-		    b = normalize(b);
-
-		    return new Color(r, g, b, 255);
-	    }
 
 	    private float ComputeLighting(Vector P, Vector N, Vector V, int s, float tMax) {
 		    var i = 0.0f;
@@ -109,11 +108,11 @@ namespace DrawOpenGL
 					    L = light.Direction;
 				    }
 
-				    var (shadow_sphere, _) = ClosestIntersection(P, L, 0.001f, tMax);
-				    if (shadow_sphere != null)
-						continue;
+                    var (shadow_sphere, _) = ClosestIntersection(P, L, 0.001f, tMax);
+                    if (shadow_sphere != null)
+                        continue;
 
-				    var nDotL = N.DotProduct(L);
+                    var nDotL = N.DotProduct(L);
 
 				    if (nDotL > 0) {
 					    i += light.Intensity * nDotL / (N.Lenght() * L.Lenght());
@@ -121,7 +120,7 @@ namespace DrawOpenGL
 
 				    if (s == -1) continue;
 
-				    var R = N.Multiply(2).Multiply(N.DotProduct(L)).Subtract(L);
+				    var R = ReflectRay(L, N);
 				    var rDotV = R.DotProduct(V);
 				    if (rDotV > 0) {
 						var tmp = light.Intensity * Math.Pow(rDotV / (R.Lenght() * V.Lenght()), s);
@@ -132,16 +131,9 @@ namespace DrawOpenGL
 		    return i;
 	    }
 
-		/// <summary>
-        /// Clamps a color to the canonical color range.
-        /// </summary>
-        /// <param name="v"></param>
-        /// <returns></returns>
-	    private Color Clamp(Color v) {
-			return new Color(Math.Min(255, (int) Math.Max(0d, v.R)),
-				(int) Math.Min(255, Math.Max(0d, v.G)),
-				(int) Math.Min(255, Math.Max(0d, v.B)), 255);
-		}
+	    private Vector ReflectRay(Vector v1, Vector v2) {
+		    return v2.Multiply(2 * v1.DotProduct(v2)).Subtract(v1);
+	    }
 
     }
 }

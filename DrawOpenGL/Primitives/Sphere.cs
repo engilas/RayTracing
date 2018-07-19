@@ -7,5 +7,6 @@ namespace DrawOpenGL.Primitives {
 		public float Radius { get; set; }
 		public Color Color { get; set; }
 		public int Specular { get; set; }
+		public float Reflect { get; set; }
 	}
 }

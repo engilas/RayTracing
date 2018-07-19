@@ -27,41 +27,45 @@ namespace DrawOpenGL
 					        Center = new Vector(0, -1, 3),
 					        Radius = 1,
 					        Color = Color.Red,
-					        Specular = 500
-				        },
-				        new Sphere {
-					        Center = new Vector(2, 0, 4),
-					        Radius = 1,
-					        Color = Color.Blue,
-					        Specular = 500
+					        Specular = 500,
+							Reflect = 0.2f
 				        },
 				        new Sphere {
 					        Center = new Vector(-2, 0, 4),
 					        Radius = 1,
+					        Color = Color.Blue,
+					        Specular = 500,
+					        Reflect = 0.3f
+				        },
+				        new Sphere {
+					        Center = new Vector(2, 0, 4),
+					        Radius = 1,
 					        Color = Color.Green,
-					        Specular = 10
+					        Specular = 10,
+					        Reflect = 0.4f
 				        },
 				        new Sphere {
 					        Center = new Vector(0, -5001, 0),
 					        Radius = 5000f,
 					        Color = Color.Yellow,
-					        Specular = 600
+					        Specular = 1000,
+					        Reflect = 0.5f
 				        }
 			        }),
 			        Lights = new List<Light>(
 				        new[] {
-                            new Light {
-                                Type = LightType.Ambient,
-                                Intensity = 0.2f
-                            },
-					        //new Light {
-						       // Type = LightType.Point,
-						       // Intensity = 0.6f,
-						       // Position = new Vector(2, 1, 0)
-					        //},
+					        new Light {
+						        Type = LightType.Ambient,
+						        Intensity = 0.2f
+					        },
+					        new Light {
+						        Type = LightType.Point,
+						        Intensity = 0.6f,
+						        Position = new Vector(2, 1, 0)
+					        },
 					        new Light {
 						        Type = LightType.Direct,
-						        Intensity = 0.99f,
+						        Intensity = 0.2f,
 						        Direction = new Vector(1, 4, 4)
 					        }
                         }
@@ -75,7 +79,8 @@ namespace DrawOpenGL
 			        ViewportHeight = 1,
 			        CanvasWidth = width,
 			        CanvasHeight = height,
-			        ViewportDistance = 1
+			        ViewportDistance = 1,
+					RecursionDepth = 30
 		        };
 
 		        Console.WriteLine("Started");
