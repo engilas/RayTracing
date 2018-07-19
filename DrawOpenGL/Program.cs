@@ -26,21 +26,25 @@ namespace DrawOpenGL
 				        new Sphere {
 					        Center = new Vector(0, -1, 3),
 					        Radius = 1,
-					        Color = Color.Red
+					        Color = Color.Red,
+							Specular = 500
 				        },
 				        new Sphere {
 					        Center = new Vector(2, 0, 4),
 					        Radius = 1,
-					        Color = Color.Blue
+					        Color = Color.Blue,
+					        Specular = 500
 				        },
 				        new Sphere {
 					        Center = new Vector(-2, 0, 4),
 					        Radius = 1,
-					        Color = Color.Green
+					        Color = Color.Green,
+					        Specular = 10
 				        }, new Sphere {
-							Center = new Vector(0,2,5),
-							Radius = 1.03f,
-							Color = Color.DeepPink
+							Center = new Vector(0,-5001,0),
+							Radius = 5000f,
+							Color = Color.Yellow,
+					        Specular = 600
 				        }
 			        }),
 			        Lights = new List<Light>(new[] {

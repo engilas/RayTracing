@@ -4,16 +4,16 @@ using OpenTK;
 namespace DrawOpenGL
 {
     class RenderOptions {
-	    public int CanvasWidth { get; set; } = 200;
-	    public int CanvasHeight { get; set; } = 200;
+	    public int CanvasWidth { get; set; } 
+	    public int CanvasHeight { get; set; } 
 
-	    public int ViewportWidth{ get; set; } = 1;
-	    public int ViewportHeight{ get; set; } = 1;
+	    public int ViewportWidth{ get; set; }
+	    public int ViewportHeight{ get; set; } 
 
-	    public Color BgColor{ get; set; } = Color.Black;
+	    public Color BgColor{ get; set; } 
 
-	    public Vector CameraPos { get; set; } = new Vector(0, 0, 0);
+	    public Vector CameraPos { get; set; }
 
-	    public int ViewportDistance{ get; set; } = 1;
+	    public int ViewportDistance{ get; set; }
     }
 }

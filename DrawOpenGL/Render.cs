@@ -25,20 +25,12 @@ namespace DrawOpenGL
 		    for (int y = -yEdge; y < yEdge; y++) {
 			    var D = CanvasToViewport(x, y);
 			    var color = TraceRay(_options.CameraPos, D, 1, int.MaxValue);
-			    _canvas.DrawPoint(x,y,color);
+			    _canvas.DrawPoint(x,y, color);
 		    }
 	    }
 
 	    private Vector CanvasToViewport(float x, float y) {
 		    return new Vector(x * _options.ViewportWidth / _options.CanvasWidth, y * _options.ViewportHeight / _options.CanvasHeight, _options.ViewportDistance);
-	    }
-
-	    static float DotProduct(Vector v1, Vector v2) {
-		    return v1.D1 * v2.D1 + v1.D2 * v2.D2 + v1.D3 * v2.D3;
-	    }
-
-	    static Vector Subtract(Vector v1, Vector v2) {
-		    return new Vector(v1.D1 - v2.D1, v1.D2 - v2.D2, v1.D3 - v2.D3);
 	    }
 
 	    private Color TraceRay(Vector O, Vector D, int tMin, int tMax) {
@@ -58,21 +50,21 @@ namespace DrawOpenGL
 		    if (closest_sphere == null)
 			    return _options.BgColor;
 
-		    var P = Add(O, Multiply(closest_t, D));
-		    var N = Subtract(P, closest_sphere.Center);
-		    N = Multiply(1 / Lenght(N), N);
-
-		    return Multiply(ComputeLighting(P, N), closest_sphere.Color);
+		    var P = O.Add(D.Multiply(closest_t));
+		    var N = P.Subtract(closest_sphere.Center);
+		    N = N.Multiply(1 / N.Lenght());
+		    var lightning = ComputeLighting(P, N, D.Multiply(-1), closest_sphere.Specular);
+		    return Multiply(lightning, closest_sphere.Color);
 	    }
 
 	    private (float, float) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
 		    var C = sphere.Center;
 		    var r = sphere.Radius;
-		    var oc = Subtract(O, C);
+		    var oc = O.Subtract(C);
 
-		    var k1 = DotProduct(D, D);
-		    var k2 = 2 * DotProduct(oc, D);
-		    var k3 = DotProduct(oc, oc) - r * r;
+		    var k1 = D.DotProduct(D);
+		    var k2 = 2 * oc.DotProduct(D);
+		    var k3 = oc.DotProduct(oc) - r * r;
 		    var discr = k2 * k2 - 4 * k1 * k3;
 		    if (discr < 0) {
 			    return (float.PositiveInfinity, float.PositiveInfinity);
@@ -82,24 +74,22 @@ namespace DrawOpenGL
 		    var t2 = (-k2 - (float)Math.Sqrt(discr)) / (2 * k1);
 		    return (t1, t2);
 	    }
-
-	    private float Lenght(Vector v) {
-		    return (float) Math.Sqrt(DotProduct(v, v));
-	    }
-
-	    private Vector Multiply(float k, Vector v) {
-			return new Vector(k * v.D1, k * v.D2, k * v.D3);
-	    }
 		
-	    private Color Multiply(float k, Color c) {
-		    return new Color((int) (k * c.R), (int) (k * c.G), (int) (k * c.B), 255);
+	    private Color Multiply(float k, Color color) {
+		    var r = (int) (k * color.R);
+			var g = (int) (k * color.G);
+		    var b = (int) (k * color.B);
+
+			int normalize(int c) => c > 255 ? 255 : c < 0 ? 0 : c;
+
+		    r = normalize(r);
+		    g = normalize(g);
+		    b = normalize(b);
+
+		    return new Color(r, g, b, 255);
 	    }
 
-	    private Vector Add(Vector v1, Vector v2) {
-			return new Vector(v1.D1 + v2.D1, v1.D2 + v2.D2, v1.D3 + v2.D3);
-	    }
-
-	    private float ComputeLighting(Vector P, Vector N) {
+	    private float ComputeLighting(Vector P, Vector N, Vector V, int s) {
 		    var i = 0.0f;
 		    Vector L = null;
 		    foreach (var light in _scene.Lights) {
@@ -107,21 +97,41 @@ namespace DrawOpenGL
 				    i += light.Intensity;
 			    } else {
 				    if (light.Type == LightType.Point) {
-					    L = Subtract(light.Position, P);
+					    L = light.Position.Subtract(P);
 				    }
 				    if (light.Type == LightType.Direct) {
 					    L = light.Direction;
 				    }
 
-				    var nDotL = DotProduct(N, L);
+				    var nDotL = N.DotProduct(L);
 
 				    if (nDotL > 0) {
-					    i += light.Intensity * nDotL / (Lenght(N) * Lenght(L));
+					    i += light.Intensity * nDotL / (N.Lenght() * L.Lenght());
+				    }
+
+				    if (s == -1) continue;
+
+				    var R = N.Multiply(2).Multiply(N.DotProduct(L)).Subtract(L);
+				    var rDotV = R.DotProduct(V);
+				    if (rDotV > 0) {
+						var tmp = light.Intensity * Math.Pow(rDotV / (R.Lenght() * V.Lenght()), s);
+					    i += (float)tmp;
 				    }
 			    }
 		    }
 		    return i;
 	    }
+
+		/// <summary>
+        /// Clamps a color to the canonical color range.
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
+	    private Color Clamp(Color v) {
+			return new Color(Math.Min(255, (int) Math.Max(0d, v.R)),
+				(int) Math.Min(255, Math.Max(0d, v.G)),
+				(int) Math.Min(255, Math.Max(0d, v.B)), 255);
+		}
 
     }
 }
