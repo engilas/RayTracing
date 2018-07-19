@@ -27,11 +27,11 @@ namespace DrawOpenGL {
 		}
 
 		public void DrawPoint(int x, int y, Color color) {
-            if (Math.Abs(x) > Width || Math.Abs(y) > Height)
+            if (Math.Abs(x) > Width * 2 || Math.Abs(y) > Height * 2)
                 throw new ArgumentOutOfRangeException();
 
-            var xScale = x / (float) Width;
-			var yScale = y / (float) Height;
+            var xScale = x / (float) Width * 2;
+			var yScale = y / (float) Height * 2;
 
 
 			_points.Add(new Pixel(xScale, yScale, color));
@@ -62,8 +62,6 @@ namespace DrawOpenGL {
 
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadIdentity();
-			GL.Color3(1, 1, 1);
-			//GL.PointSize(5);
 
 			var items = _points.ToArray();
 

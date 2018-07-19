@@ -15,12 +15,19 @@ namespace DrawOpenGL
 		    _workerThread = new Thread(() => {
 			    _canvas = new Canvas(width, height, bgColor);
 			    _canvas.Load += (_, __) => {_mres.Set(); };
+			    _canvas.Closed +=  CanvasOnClosed;
 			    _canvas.Run(frameRate);
 		    });
 		    _workerThread.Start();
 		    _mres.Wait();
 	    }
 
+	    private void CanvasOnClosed(object sender, EventArgs e) {
+		    CancasClosed?.Invoke(sender, e);
+	    }
+
+	    public event EventHandler<EventArgs> CancasClosed;
+		
 	    public void Dispose() {
 			_canvas.Stop();
 	    }
