@@ -1,21 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using DrawOpenGL.Models;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace DrawOpenGL {
 	class Canvas : GameWindow, ICanvas {
-		struct Pixel {
-			public float X { get; }
-			public float Y { get; }
-			public Color Color { get; }
-
-			public Pixel(float x, float y, Color c) {
-				X = x;
-				Y = y;
-				Color = c;
-			}
-		}
 		
 		private ConcurrentBag<Pixel> _points = new ConcurrentBag<Pixel>();
 		private volatile bool _stop = false;
@@ -35,6 +25,10 @@ namespace DrawOpenGL {
 
 
 			_points.Add(new Pixel(xScale, yScale, color));
+		}
+
+		public void Clear() {
+			_points.Clear();
 		}
 
 		public void Stop() {

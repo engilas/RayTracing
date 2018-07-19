@@ -18,8 +18,11 @@ namespace DrawOpenGL
 	    }
 
 	    public void Process() {
-		    for (int x = (int)Math.Round(-_options.CanvasWidth/2d); x < Math.Round(_options.CanvasWidth/2d); x++)
-		    for (int y = (int)Math.Round(-_options.CanvasHeight/2d); y < Math.Round(_options.CanvasHeight/2d); y++) {
+		    var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
+			var yEdge = (int) Math.Round(_options.CanvasHeight / 2d);
+
+		    for (int x = -xEdge; x < xEdge; x++)
+		    for (int y = -yEdge; y < yEdge; y++) {
 			    var D = CanvasToViewport(x, y);
 			    var color = TraceRay(_options.CameraPos, D, 1, int.MaxValue);
 			    _canvas.DrawPoint(x,y,color);
@@ -54,10 +57,15 @@ namespace DrawOpenGL
 		    }
 		    if (closest_sphere == null)
 			    return _options.BgColor;
-		    return closest_sphere.Color;
+
+		    var P = Add(O, Multiply(closest_t, D));
+		    var N = Subtract(P, closest_sphere.Center);
+		    N = Multiply(1 / Lenght(N), N);
+
+		    return Multiply(ComputeLighting(P, N), closest_sphere.Color);
 	    }
 
-	    static (float, float) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
+	    private (float, float) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
 		    var C = sphere.Center;
 		    var r = sphere.Radius;
 		    var oc = Subtract(O, C);
@@ -74,5 +82,46 @@ namespace DrawOpenGL
 		    var t2 = (-k2 - (float)Math.Sqrt(discr)) / (2 * k1);
 		    return (t1, t2);
 	    }
+
+	    private float Lenght(Vector v) {
+		    return (float) Math.Sqrt(DotProduct(v, v));
+	    }
+
+	    private Vector Multiply(float k, Vector v) {
+			return new Vector(k * v.D1, k * v.D2, k * v.D3);
+	    }
+		
+	    private Color Multiply(float k, Color c) {
+		    return new Color((int) (k * c.R), (int) (k * c.G), (int) (k * c.B), 255);
+	    }
+
+	    private Vector Add(Vector v1, Vector v2) {
+			return new Vector(v1.D1 + v2.D1, v1.D2 + v2.D2, v1.D3 + v2.D3);
+	    }
+
+	    private float ComputeLighting(Vector P, Vector N) {
+		    var i = 0.0f;
+		    Vector L = null;
+		    foreach (var light in _scene.Lights) {
+			    if (light.Type == LightType.Ambient) {
+				    i += light.Intensity;
+			    } else {
+				    if (light.Type == LightType.Point) {
+					    L = Subtract(light.Position, P);
+				    }
+				    if (light.Type == LightType.Direct) {
+					    L = light.Direction;
+				    }
+
+				    var nDotL = DotProduct(N, L);
+
+				    if (nDotL > 0) {
+					    i += light.Intensity * nDotL / (Lenght(N) * Lenght(L));
+				    }
+			    }
+		    }
+		    return i;
+	    }
+
     }
 }

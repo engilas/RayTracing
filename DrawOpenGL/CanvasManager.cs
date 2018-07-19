@@ -4,7 +4,7 @@ using OpenTK;
 
 namespace DrawOpenGL
 {
-    public class CanvasManager : IDisposable {
+    class CanvasManager : IDisposable {
 	    private Thread _workerThread;
 	    private Canvas _canvas;
 	    private readonly ManualResetEventSlim _mres = new ManualResetEventSlim();

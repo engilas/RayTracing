@@ -1,8 +1,10 @@
-﻿using OpenTK;
+﻿using DrawOpenGL.Models;
+using OpenTK;
 
 namespace DrawOpenGL
 {
-    public interface ICanvas {
+    interface ICanvas {
 	    void DrawPoint(int x, int y, Color color);
+	    void Clear();
     }
 }

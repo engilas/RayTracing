@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using DrawOpenGL.Models;
 using DrawOpenGL.Primitives;
@@ -13,8 +14,8 @@ namespace DrawOpenGL
         {
 	        using (var canvasManager = new CanvasManager()) {
 
-		        var width = 200;
-		        var height = 200;
+		        var width = 300;
+		        var height = 300;
 		        var bg = Color.Black;
 
 		        canvasManager.Initialize(30,width,height, bg);
@@ -37,24 +38,46 @@ namespace DrawOpenGL
 					        Radius = 1,
 					        Color = Color.Green
 				        }
+			        }),
+			        Lights = new List<Light>(new[] {
+				        new Light {
+					        Type = LightType.Ambient,
+					        Intensity = 0.2f
+				        },
+				        new Light {
+					        Type = LightType.Point,
+					        Intensity = 0.6f,
+					        Position = new Vector(2, 1, 0)
+				        },
+				        new Light {
+					        Type = LightType.Direct,
+					        Intensity = 0.2f,
+					        Direction = new Vector(1, 4, 4)
+				        },
 			        })
 		        };
 
 		        var options = new RenderOptions {
-			        BgColor = Color.Black,
+			        BgColor = bg,
 			        CameraPos = new Vector(0, 0, 0),
 			        ViewportWidth = 1,
 			        ViewportHeight = 1,
-			        CanvasWidth = 200,
-			        CanvasHeight = 200,
+			        CanvasWidth = width,
+			        CanvasHeight = height,
 			        ViewportDistance = 1
 		        };
 
+		        Console.WriteLine("Started");
+		        
 				var render = new Render(canvasManager.Canvas, scene, options);
+
+		        var sw = Stopwatch.StartNew();
 				render.Process();
 
+				sw.Stop();
 
-				Console.WriteLine("Started");
+		        Console.WriteLine($"Rendered in {sw.Elapsed} ms");
+
 				Thread.Sleep(-1);
 	        }
         }
