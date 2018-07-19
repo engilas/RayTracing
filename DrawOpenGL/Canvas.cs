@@ -20,7 +20,10 @@ namespace DrawOpenGL {
 		private ConcurrentBag<Pixel> _points = new ConcurrentBag<Pixel>();
 		private volatile bool _stop = false;
 
-		public Canvas(int width, int height) : base(width, height) {
+		private readonly Color _bgColor;
+
+		public Canvas(int width, int height, Color bgColor) : base(width, height) {
+			_bgColor = bgColor;
 		}
 
 		public void DrawPoint(int x, int y, Color color) {
@@ -41,7 +44,7 @@ namespace DrawOpenGL {
 		protected override void OnLoad(EventArgs e) {
 			base.OnLoad(e);
 
-			GL.ClearColor(Color.Black);
+			GL.ClearColor(_bgColor);
 		}
 
 		protected override void OnRenderFrame(FrameEventArgs e) {
