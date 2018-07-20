@@ -64,13 +64,6 @@ namespace RayTracing {
 						Color = Color.FromRgb(0, 255, 0),
 						Specular = 10,
 						Reflect = 0.4f
-					},
-					new Sphere {
-						Center = new Vector(0, -5001, 0),
-						Radius = 5000f,
-						Color = Color.FromRgb(255, 255, 0),
-						Specular = 1000,
-						Reflect = 0.5f
 					}
 				}),
 				Lights = new List<Light>(
@@ -93,11 +86,18 @@ namespace RayTracing {
 				),
 				Planes = new List<Plane> {
 					new Plane {
-						Color = Color.FromRgb(255,255,0),
-						A =0,
+						Color = Color.FromRgb(255, 255, 0),
+						A = 0.3f,
 						B = 1,
-						C= 0,
+						C = 0,
 						D = 1
+					},
+					new Plane {
+						Color = Color.FromRgb(110, 157, 153),
+						A = 0.0f,
+						B = 0,
+						C = 1,
+						D = -7
 					}
 				}
 			};
@@ -123,6 +123,8 @@ namespace RayTracing {
 			_canvas = new Canvas(Width, Height);
 			
 			var render = new Render(_canvas, scene, options);
+
+			ProcessRender(render);
 
 		}
 
