@@ -37,20 +37,26 @@ namespace RayTracing
 	    }
 
 	    private Vector TraceRay(Vector O, Vector D, float tMin, float tMax, int depth) {
-		    var (closest_sphere, closest_t) = ClosestIntersection(O, D, tMin, tMax);
 
-		    if (closest_sphere == null)
-			    return Vector.FromColor(_options.BgColor);
+		    var (closestPrimitive, closest_t) = ClosestIntersection(O, D, tMin, tMax);
+		    if (closestPrimitive == null) {
+				return Vector.FromColor(_options.BgColor);
+		    }
 
-		    var view = D.Multiply(-1);
+			if (closestPrimitive is Plane)
+				return Vector.FromColor(closestPrimitive.Color);
 
-		    var P = O.Add(D.Multiply(closest_t));
-		    var N = P.Subtract(closest_sphere.Center);
-		    N = N.Multiply(1 / N.Lenght());
-		    var local_color = Vector.FromColor(closest_sphere.Color)
-			    .Multiply(ComputeLighting(P, N, view, closest_sphere.Specular, tMax));
+		    var sphere = closestPrimitive as Sphere;
 			
-            var r = closest_sphere.Reflect;
+            var view = D.Multiply(-1);
+
+            var P = O.Add(D.Multiply(closest_t));
+            var N = P.Subtract(sphere.Center);
+            N = N.Multiply(1 / N.Lenght());
+            var local_color = Vector.FromColor(sphere.Color)
+             .Multiply(ComputeLighting(P, N, view, sphere.Specular, tMax));
+
+            var r = sphere.Reflect;
             if (depth <= 0 || r <= 0)
                 return local_color;
 
@@ -60,21 +66,28 @@ namespace RayTracing
             return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
         }
 
-	    private (Sphere, float) ClosestIntersection(Vector O, Vector D, float tMin, float tMax) {
+	    private (IPrimitive, float) ClosestIntersection(Vector O, Vector D, float tMin, float tMax) {
 		    var closest_t = float.PositiveInfinity;
-		    Sphere closest_sphere = null;
+		    IPrimitive closestPrimitive = null;	
 		    foreach (var sphere in _scene.Spheres) {
 			    var(t1, t2) = IntersectRaySphere(O, D, sphere);
 			    if (t1 >= tMin && t1 <= tMax && t1 < closest_t) {
 				    closest_t = t1;
-				    closest_sphere = sphere;
+				    closestPrimitive = sphere;
 			    }
 			    if (t2 >= tMin && t2 <= tMax && t2 < closest_t) {
 				    closest_t = t2;
-				    closest_sphere = sphere;
+				    closestPrimitive = sphere;
 			    }
 		    }
-		    return (closest_sphere, closest_t);
+		    foreach (var plane in _scene.Planes) {
+			    var t = IntersectRayPlane(O, D, plane);
+			    if (t >= tMin && t <= tMax && t < closest_t) {
+				    closest_t = t;
+				    closestPrimitive = plane;
+			    }
+		    }
+		    return (closestPrimitive, closest_t);
 	    }
 
 	    private (float, float) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
@@ -93,6 +106,16 @@ namespace RayTracing
 		    var t1 = (-k2 + (float)Math.Sqrt(discr)) / (2 * k1);
 		    var t2 = (-k2 - (float)Math.Sqrt(discr)) / (2 * k1);
 		    return (t1, t2);
+	    }
+
+	    private float IntersectRayPlane(Vector O, Vector D, Plane S) {
+
+		    var normal = S.Normal.DotProduct(D);
+
+		    if (Math.Abs(normal) > 0.00001)
+			    return -(S.A * O.D1 + S.B * O.D2 + S.C * O.D3 + S.D) / (S.A * D.D1 + S.B * D.D2 + S.C * D.D3);
+		    else return float.PositiveInfinity;
+
 	    }
 
 	    private float ComputeLighting(Vector P, Vector N, Vector V, int s, float tMax) {

@@ -2,7 +2,7 @@
 using RayTracing.Models;
 
 namespace RayTracing.Primitives {
-	class Sphere {
+	class Sphere : IPrimitive {
 		public Vector Center { get; set; }
 		public float Radius { get; set; }
 		public Color Color { get; set; }

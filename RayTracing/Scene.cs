@@ -7,5 +7,6 @@ namespace RayTracing
     {
 		public List<Sphere> Spheres { get; set; }
 		public List<Light> Lights { get; set; }
+		public List<Plane> Planes { get; set; }
     }
 }

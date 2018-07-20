@@ -59,7 +59,9 @@
     </ApplicationDefinition>
     <Compile Include="Models\Pixel.cs" />
     <Compile Include="Models\Vector.cs" />
+    <Compile Include="Primitives\IPrimitive.cs" />
     <Compile Include="Primitives\Light.cs" />
+    <Compile Include="Primitives\Plane.cs" />
     <Compile Include="Primitives\Sphere.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Render.cs" />

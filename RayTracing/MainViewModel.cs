@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Media;
-using RayTracing.Annotations;
 using RayTracing.Models;
 using RayTracing.Primitives;
+using RayTracing.Properties;
 
 namespace RayTracing {
 	public class MainViewModel : INotifyPropertyChanged {
@@ -15,6 +15,7 @@ namespace RayTracing {
 		private int _width;
 		private int _height;
 
+		[UsedImplicitly]
 		public ImageSource Image => _canvas.GetImage();
 
 		public int Width {
@@ -37,8 +38,8 @@ namespace RayTracing {
 
 		public MainViewModel() {
 
-			Width = 300;
-			Height = 300;
+			Width = 400;
+			Height = 400;
 			var bg = Color.FromRgb(0, 0, 0);
 
 			var scene = new Scene {
@@ -89,7 +90,16 @@ namespace RayTracing {
 							Direction = new Vector(1, 4, 4)
 						}
 					}
-				)
+				),
+				Planes = new List<Plane> {
+					new Plane {
+						Color = Color.FromRgb(255,255,0),
+						A =0,
+						B = 1,
+						C= 0,
+						D = 1
+					}
+				}
 			};
 
 			var options = new RenderOptions {
@@ -114,7 +124,6 @@ namespace RayTracing {
 			
 			var render = new Render(_canvas, scene, options);
 
-			ProcessRender(render);
 		}
 
 		void ProcessRender(Render render) {
