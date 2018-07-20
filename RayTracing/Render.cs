@@ -1,9 +1,8 @@
 ﻿using System;
-using DrawOpenGL.Models;
-using DrawOpenGL.Primitives;
-using OpenTK;
+using RayTracing.Models;
+using RayTracing.Primitives;
 
-namespace DrawOpenGL
+namespace RayTracing
 {
     class Render
     {
@@ -21,8 +20,8 @@ namespace DrawOpenGL
 		    var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
 			var yEdge = (int) Math.Round(_options.CanvasHeight / 2d);
 
-		    for (int x = -xEdge; x < xEdge; x++)
-		    for (int y = -yEdge; y < yEdge; y++) {
+		    for (int x = -xEdge + 1; x < xEdge; x++)
+		    for (int y = -yEdge + 1; y < yEdge; y++) {
 			    var D = CanvasToViewport(x, y);
 			    if (_options.CameraRotation != null)
 				    D = D.MultiplyMatrix(_options.CameraRotation);

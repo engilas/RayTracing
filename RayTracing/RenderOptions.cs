@@ -1,7 +1,7 @@
-﻿using DrawOpenGL.Models;
-using OpenTK;
+﻿using System.Windows.Media;
+using RayTracing.Models;
 
-namespace DrawOpenGL
+namespace RayTracing
 {
     class RenderOptions {
 	    public int CanvasWidth { get; set; } 

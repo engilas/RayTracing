@@ -1,7 +1,7 @@
 ﻿using System;
-using OpenTK;
+using System.Windows.Media;
 
-namespace DrawOpenGL.Models
+namespace RayTracing.Models
 {
 	class Vector {
 		public readonly float D1, D2, D3;
@@ -49,7 +49,7 @@ namespace DrawOpenGL.Models
 
         public Color ToColor()
         {
-            return new Color((int)D1, (int)D2, (int)D3, 255);
+            return Color.FromRgb((byte)D1, (byte)D2, (byte)D3);
         }
 
 		/// <summary>

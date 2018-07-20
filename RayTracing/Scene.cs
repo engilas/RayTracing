@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using DrawOpenGL.Primitives;
+using RayTracing.Primitives;
 
-namespace DrawOpenGL
+namespace RayTracing
 {
     class Scene
     {

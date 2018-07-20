@@ -1,7 +1,7 @@
-﻿using DrawOpenGL.Models;
-using OpenTK;
+﻿using System.Windows.Media;
+using RayTracing.Models;
 
-namespace DrawOpenGL.Primitives {
+namespace RayTracing.Primitives {
 	class Sphere {
 		public Vector Center { get; set; }
 		public float Radius { get; set; }

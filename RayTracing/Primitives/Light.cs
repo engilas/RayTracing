@@ -1,6 +1,6 @@
-﻿using DrawOpenGL.Models;
+﻿using RayTracing.Models;
 
-namespace DrawOpenGL.Primitives {
+namespace RayTracing.Primitives {
 	class Light {
 		public LightType Type { get; set; }
 		public float Intensity { get; set; }
