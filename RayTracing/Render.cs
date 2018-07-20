@@ -61,7 +61,7 @@ namespace RayTracing
                 return local_color;
 
             var R = ReflectRay(D.Multiply(-1), N);
-            var reflectedColor = TraceRay(P, R, 0.1f, float.PositiveInfinity, depth - 1);
+            var reflectedColor = TraceRay(P, R, 0.001f, float.PositiveInfinity, depth - 1);
 
             return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
         }
