@@ -24,6 +24,17 @@ namespace DrawOpenGL.Models
 			return new Vector(k * D1, k * D2, k * D3);
 		}
 
+		public Vector MultiplyMatrix(float[,] matrix) {
+			var result = new[] {0f, 0f, 0f};
+			var vec = new[] {D1, D2, D3};
+			for (var i = 0; i < 3; i++) {
+				for (var j = 0; j < 3; j++) {
+					result[i] += vec[j] * matrix[i,j];
+				}
+			}
+			return new Vector(result[0], result[1], result[2]);
+		}
+
 		public float Lenght() {
 			return (float) Math.Sqrt(DotProduct(this));
 		}

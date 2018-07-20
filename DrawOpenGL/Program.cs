@@ -74,13 +74,18 @@ namespace DrawOpenGL
 
 		        var options = new RenderOptions {
 			        BgColor = bg,
-			        CameraPos = new Vector(0, 0, 0),
+			        CameraPos = new Vector(3, 0, 1),
 			        ViewportWidth = 1,
 			        ViewportHeight = 1,
 			        CanvasWidth = width,
 			        CanvasHeight = height,
 			        ViewportDistance = 1,
-					RecursionDepth = 30
+			        RecursionDepth = 3,
+			        CameraRotation = new[,] {
+				        {0.7071f, 0, -0.7071f},
+				        {0, 1, 0},
+				        {0.7071f, 0, 0.7071f}
+			        }
 		        };
 
 		        Console.WriteLine("Started");

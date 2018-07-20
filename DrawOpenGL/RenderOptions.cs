@@ -15,6 +15,7 @@ namespace DrawOpenGL
 	    public Color BgColor{ get; set; } 
 
 	    public Vector CameraPos { get; set; }
+		public float[,] CameraRotation { get; set; }
 
 	    public int ViewportDistance{ get; set; }
     }

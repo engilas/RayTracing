@@ -24,6 +24,8 @@ namespace DrawOpenGL
 		    for (int x = -xEdge; x < xEdge; x++)
 		    for (int y = -yEdge; y < yEdge; y++) {
 			    var D = CanvasToViewport(x, y);
+			    if (_options.CameraRotation != null)
+				    D = D.MultiplyMatrix(_options.CameraRotation);
 			    var color = TraceRay(_options.CameraPos, D, 1, int.MaxValue, _options.RecursionDepth);
 
 
