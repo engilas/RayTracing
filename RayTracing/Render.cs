@@ -25,7 +25,7 @@ namespace RayTracing
 			    var D = CanvasToViewport(x, y);
 			    if (_options.CameraRotation != null)
 				    D = D.MultiplyMatrix(_options.CameraRotation);
-			    var color = TraceRay(_options.CameraPos, D, 1, int.MaxValue, _options.RecursionDepth);
+			    var color = TraceRay(_options.CameraPos, D, 0, int.MaxValue, _options.RecursionDepth);
 
 
 			    _canvas.DrawPoint(x,y, color.Clamp().ToColor());
@@ -43,28 +43,32 @@ namespace RayTracing
 				return Vector.FromColor(_options.BgColor);
 		    }
 
-			if (closestPrimitive is Plane)
-				return Vector.FromColor(closestPrimitive.Color);
+		    var view = D.Multiply(-1);
+		    var P = O.Add(D.Multiply(closest_t));
 
-		    var sphere = closestPrimitive as Sphere;
-			
-            var view = D.Multiply(-1);
+		    Vector N = null;
 
-            var P = O.Add(D.Multiply(closest_t));
-            var N = P.Subtract(sphere.Center);
-            N = N.Multiply(1 / N.Lenght());
-            var local_color = Vector.FromColor(sphere.Color)
-             .Multiply(ComputeLighting(P, N, view, sphere.Specular, tMax));
+		    if (closestPrimitive is Plane plane) {
+			    N = plane.Normal;
+		    }
+		    
+		    if (closestPrimitive is Sphere sphere) {
+			    N = P.Subtract(sphere.Center);
+		    }
 
-            var r = sphere.Reflect;
-            if (depth <= 0 || r <= 0)
-                return local_color;
+		    N = N.Multiply(1 / N.Lenght());
+		    var local_color = Vector.FromColor(closestPrimitive.Color)
+			    .Multiply(ComputeLighting(P, N, view, closestPrimitive.Specular, tMax));
 
-            var R = ReflectRay(D.Multiply(-1), N);
-            var reflectedColor = TraceRay(P, R, 0.001f, float.PositiveInfinity, depth - 1);
+		    var r = closestPrimitive.Reflect;
+		    if (depth <= 0 || r <= 0)
+			    return local_color;
 
-            return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
-        }
+		    var R = ReflectRay(D.Multiply(-1), N);
+		    var reflectedColor = TraceRay(P, R, 0.1f, float.PositiveInfinity, depth - 1);
+
+		    return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
+	    }
 
 	    private (IPrimitive, float) ClosestIntersection(Vector O, Vector D, float tMin, float tMax) {
 		    var closest_t = float.PositiveInfinity;

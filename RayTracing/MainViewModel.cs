@@ -87,7 +87,7 @@ namespace RayTracing {
 				Planes = new List<Plane> {
 					new Plane {
 						Color = Color.FromRgb(255, 255, 0),
-						A = 0.3f,
+						A = 0.0f,
 						B = 1,
 						C = 0,
 						D = 1
