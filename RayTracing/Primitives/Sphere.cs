@@ -4,9 +4,9 @@ using RayTracing.Models;
 namespace RayTracing.Primitives {
 	class Sphere : IPrimitive {
 		public Vector Center { get; set; }
-		public float Radius { get; set; }
+		public double Radius { get; set; }
 		public Color Color { get; set; }
 		public int Specular { get; set; }
-		public float Reflect { get; set; }
+		public double Reflect { get; set; }
 	}
 }

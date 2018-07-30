@@ -4,13 +4,13 @@ using System.Windows.Media;
 namespace RayTracing.Models
 {
 	class Vector {
-		public readonly float D1, D2, D3;
+		public readonly double D1, D2, D3;
         
-		public Vector((float, float, float) v) {
+		public Vector((double, double, double) v) {
 			(D1, D2, D3) = v;
 		}
 
-		public Vector(float v1, float v2, float v3) {
+		public Vector(double v1, double v2, double v3) {
 			D1 = v1;
 			D2 = v2;
 			D3 = v3;
@@ -20,12 +20,12 @@ namespace RayTracing.Models
 			return new Vector(D1 + v.D1, D2 + v.D2, D3 + v.D3);
 		}
 
-		public Vector Multiply(float k) {
+		public Vector Multiply(double k) {
 			return new Vector(k * D1, k * D2, k * D3);
 		}
 
-		public Vector MultiplyMatrix(float[,] matrix) {
-			var result = new[] {0f, 0f, 0f};
+		public Vector MultiplyMatrix(double[,] matrix) {
+			var result = new[] {0d, 0d, 0d};
 			var vec = new[] {D1, D2, D3};
 			for (var i = 0; i < 3; i++) {
 				for (var j = 0; j < 3; j++) {
@@ -35,15 +35,15 @@ namespace RayTracing.Models
 			return new Vector(result[0], result[1], result[2]);
 		}
 
-		public float Lenght() {
-			return (float) Math.Sqrt(DotProduct(this));
+		public double Lenght() {
+			return (double) Math.Sqrt(DotProduct(this));
 		}
 
 		public Vector Subtract(Vector v) {
 			return new Vector(D1 - v.D1, D2 - v.D2, D3 - v.D3);
 		}
 
-		public float DotProduct(Vector v) {
+		public double DotProduct(Vector v) {
 			return D1 * v.D1 + D2 * v.D2 + D3 * v.D3;
 		}
 
