@@ -57,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers.cs" />
     <Compile Include="Models\Pixel.cs" />
     <Compile Include="Models\Vector.cs" />
     <Compile Include="Primitives\IPrimitive.cs" />

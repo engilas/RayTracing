@@ -15,7 +15,10 @@ namespace RayTracing
 	    public Color BgColor{ get; set; } 
 
 	    public Vector CameraPos { get; set; }
-		public double[,] CameraRotation { get; set; }
+
+		public double CameraRotationX { get; set; }
+	    public double CameraRotationY { get; set; }
+	    public double CameraRotationZ { get; set; }
 
 	    public int ViewportDistance{ get; set; }
     }

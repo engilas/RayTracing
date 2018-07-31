@@ -100,27 +100,24 @@ namespace RayTracing {
 						B = 0,
 						C = 1,
 						D = -7,
-						Reflect = 1,
+						Reflect = 0.4,
 						Specular = -1
 					}
 				}
 			};
-
+			
 			var options = new RenderOptions {
 				BgColor = bg,
-				CameraPos = new Vector(0, 0, 0),
+				CameraPos = new Vector(0, 6, 6),
 				ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
 				RecursionDepth = 3,
-				//CameraRotation = new[,] {
-				//    {0.7071, 0, -0.7071},
-				//    {0, 1, 0},
-				//    {0.7071, 0, 0.7071}
-				//}
-			};
+				CameraRotationX = -90,
+				CameraRotationY = 180
+            };
 
 			Console.WriteLine("Started");
 

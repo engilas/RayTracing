@@ -23,13 +23,49 @@ namespace RayTracing
 		    for (int x = -xEdge + 1; x < xEdge; x++)
 		    for (int y = -yEdge + 1; y < yEdge; y++) {
 			    var D = CanvasToViewport(x, y);
-			    if (_options.CameraRotation != null)
-				    D = D.MultiplyMatrix(_options.CameraRotation);
+
+			    D = D.MultiplyMatrix(GetXRotation(_options.CameraRotationX));
+			    D = D.MultiplyMatrix(GetYRotation(_options.CameraRotationY));
+			    D = D.MultiplyMatrix(GetZRotation(_options.CameraRotationZ));
+
 			    var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
 
 
 			    _canvas.DrawPoint(x,y, color.Clamp().ToColor());
 		    }
+	    }
+
+	    private double[,] GetXRotation(double grad) {
+		    var xRad = Math.PI / 180 * grad;
+		    var sin = Math.Sin(xRad);
+		    var cos = Math.Cos(xRad);
+		    return Helpers.TransponMatrix(new [,] {
+			    {1, 0, 0},
+			    {0, cos, -sin},
+			    {0, sin, cos}
+		    });
+	    }
+
+	    private double[,] GetYRotation(double grad) {
+		    var xRad = Math.PI / 180 * grad;
+		    var sin = Math.Sin(xRad);
+		    var cos = Math.Cos(xRad);
+		    return Helpers.TransponMatrix(new [,] {
+			    {cos, 0, sin},
+			    {0, 1, 0},
+			    {-sin, 0, cos}
+		    });
+	    }
+
+	    private double[,] GetZRotation(double grad) {
+		    var xRad = Math.PI / 180 * grad;
+		    var sin = Math.Sin(xRad);
+		    var cos = Math.Cos(xRad);
+		    return Helpers.TransponMatrix(new [,] {
+			    {cos, -sin, 0},
+			    {sin, cos, 0},
+			    {0, 0, 1}
+		    });
 	    }
 
 	    private Vector CanvasToViewport(double x, double y) {
