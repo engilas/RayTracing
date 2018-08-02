@@ -2,204 +2,196 @@
 using RayTracing.Models;
 using RayTracing.Primitives;
 
-namespace RayTracing
-{
-    class Render
-    {
-	    private readonly ICanvas _canvas;
-	    private readonly Scene _scene;
-	    private readonly RenderOptions _options;
+namespace RayTracing {
+	class Render {
+		private readonly ICanvas _canvas;
+		private readonly Scene _scene;
+		private readonly RenderOptions _options;
 
-	    public Render(ICanvas canvas, Scene scene, RenderOptions options) {
-		    _canvas = canvas;
-		    _scene = scene;
-		    _options = options;
-	    }
+		public Render(ICanvas canvas, Scene scene, RenderOptions options) {
+			_canvas = canvas;
+			_scene = scene;
+			_options = options;
+		}
 
-	    public void Process() {
-		    var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
+		public void Process() {
+			var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
 			var yEdge = (int) Math.Round(_options.CanvasHeight / 2d);
 
-		    for (int x = -xEdge + 1; x < xEdge; x++)
-		    for (int y = -yEdge + 1; y < yEdge; y++) {
-			    var D = CanvasToViewport(x, y);
+			NormalizePlanes();
 
-			    D = D.MultiplyMatrix(GetXRotation(_options.CameraRotationX));
-			    D = D.MultiplyMatrix(GetYRotation(_options.CameraRotationY));
-			    D = D.MultiplyMatrix(GetZRotation(_options.CameraRotationZ));
+			for (int x = -xEdge + 1; x < xEdge; x++)
+			for (int y = -yEdge + 1; y < yEdge; y++) {
+				var D = CanvasToViewport(x, y);
 
-			    var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
+				D = D.MultiplyMatrix(Helpers.GetXRotation(_options.CameraRotationX));
+				D = D.MultiplyMatrix(Helpers.GetYRotation(_options.CameraRotationY));
+				D = D.MultiplyMatrix(Helpers.GetZRotation(_options.CameraRotationZ));
 
+				var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
 
-			    _canvas.DrawPoint(x,y, color.Clamp().ToColor());
-		    }
-	    }
+				_canvas.DrawPoint(x, y, color.Clamp().ToColor());
+			}
+		}
 
-	    private double[,] GetXRotation(double grad) {
-		    var xRad = Math.PI / 180 * grad;
-		    var sin = Math.Sin(xRad);
-		    var cos = Math.Cos(xRad);
-		    return Helpers.TransponMatrix(new [,] {
-			    {1, 0, 0},
-			    {0, cos, -sin},
-			    {0, sin, cos}
-		    });
-	    }
+		private Vector CanvasToViewport(double x, double y) {
+			return new Vector(x * _options.ViewportWidth / _options.CanvasWidth,
+				y * _options.ViewportHeight / _options.CanvasHeight, _options.ViewportDistance);
+		}
 
-	    private double[,] GetYRotation(double grad) {
-		    var xRad = Math.PI / 180 * grad;
-		    var sin = Math.Sin(xRad);
-		    var cos = Math.Cos(xRad);
-		    return Helpers.TransponMatrix(new [,] {
-			    {cos, 0, sin},
-			    {0, 1, 0},
-			    {-sin, 0, cos}
-		    });
-	    }
+		private void NormalizePlanes() {
+			foreach (var plane in _scene.Planes) {
+				if (plane.D >= 0) {
+					continue;
+				}
 
-	    private double[,] GetZRotation(double grad) {
-		    var xRad = Math.PI / 180 * grad;
-		    var sin = Math.Sin(xRad);
-		    var cos = Math.Cos(xRad);
-		    return Helpers.TransponMatrix(new [,] {
-			    {cos, -sin, 0},
-			    {sin, cos, 0},
-			    {0, 0, 1}
-		    });
-	    }
+				plane.D = -plane.D;
+				plane.A = -plane.A;
+				plane.B = -plane.B;
+				plane.C = -plane.C;
+			}
+		}
 
-	    private Vector CanvasToViewport(double x, double y) {
-		    return new Vector(x * _options.ViewportWidth / _options.CanvasWidth, y * _options.ViewportHeight / _options.CanvasHeight, _options.ViewportDistance);
-	    }
+		private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth) {
 
-	    private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth) {
-
-		    var (closestPrimitive, closest_t) = ClosestIntersection(O, D, tMin, tMax);
-		    if (closestPrimitive == null) {
+			var (closestPrimitive, closest_t) = ClosestIntersection(O, D, tMin, tMax);
+			if (closestPrimitive == null) {
 				return Vector.FromColor(_options.BgColor);
-		    }
+			}
 
-		    var view = D.Multiply(-1);
-		    var P = O.Add(D.Multiply(closest_t));
+			var view = D.Multiply(-1);
+			var P = O.Add(D.Multiply(closest_t));
 
-		    Vector normal = null;
+			Vector normal = null;
 
-		    if (closestPrimitive is Plane plane) {
-			    normal = plane.Normal;
-		    }
-		    
-		    if (closestPrimitive is Sphere sphere) {
-			    normal = P.Subtract(sphere.Center);
-		    }
+			if (closestPrimitive is Plane plane) {
+				normal = plane.Normal;
+			}
 
-		    normal = normal.Multiply(1 / normal.Lenght());
-		    var local_color = Vector.FromColor(closestPrimitive.Color)
-			    .Multiply(ComputeLighting(P, normal, view, closestPrimitive.Specular, tMax));
+			if (closestPrimitive is Sphere sphere) {
+				normal = P.Subtract(sphere.Center);
+			}
 
-		    var r = closestPrimitive.Reflect;
-		    if (depth <= 0 || r <= 0)
-			    return local_color;
+			normal = normal.Multiply(1 / normal.Lenght()); //unit vector
 
-		    var R = ReflectRay(view, normal);
-		    var reflectedColor = TraceRay(P, R, 0.001d, double.PositiveInfinity, depth - 1);
+			var local_color = Vector.FromColor(closestPrimitive.Color)
+				.Multiply(ComputeLighting(P, normal, view, closestPrimitive.Specular));
 
-		    return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
-	    }
+			var r = closestPrimitive.Reflect;
+			if (depth <= 0 || r <= 0)
+				return local_color;
 
-	    private (IPrimitive, double) ClosestIntersection(Vector O, Vector D, double tMin, double tMax) {
-		    var closest_t = double.PositiveInfinity;
-		    IPrimitive closestPrimitive = null;	
-		    foreach (var sphere in _scene.Spheres) {
-			    var(t1, t2) = IntersectRaySphere(O, D, sphere);
-			    if (t1 >= tMin && t1 <= tMax && t1 < closest_t) {
-				    closest_t = t1;
-				    closestPrimitive = sphere;
-			    }
-			    if (t2 >= tMin && t2 <= tMax && t2 < closest_t) {
-				    closest_t = t2;
-				    closestPrimitive = sphere;
-			    }
-		    }
-		    foreach (var plane in _scene.Planes) {
-			    var t = IntersectRayPlane(O, D, plane);
-			    if (t >= tMin && t <= tMax && t < closest_t) {
-				    closest_t = t;
-				    closestPrimitive = plane;
-			    }
-		    }
-		    return (closestPrimitive, closest_t);
-	    }
+			var R = ReflectRay(view, normal);
+			var reflectedColor = TraceRay(P, R, 0.001d, double.PositiveInfinity, depth - 1);
 
-	    private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
-		    var C = sphere.Center;
-		    var r = sphere.Radius;
-		    var oc = O.Subtract(C);
+			return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
+		}
 
-		    var k1 = D.DotProduct(D);
-		    var k2 = 2 * oc.DotProduct(D);
-		    var k3 = oc.DotProduct(oc) - r * r;
-		    var discr = k2 * k2 - 4 * k1 * k3;
-		    if (discr < 0) {
-			    return (double.PositiveInfinity, double.PositiveInfinity);
-		    }
+		private (Primitive, double) ClosestIntersection(Vector O, Vector D, double tMin, double tMax) {
+			var closest_t = double.PositiveInfinity;
+			Primitive closestPrimitive = null;
+			foreach (var sphere in _scene.Spheres) {
+				var (t1, t2) = IntersectRaySphere(O, D, sphere);
+				if (t1 >= tMin && t1 <= tMax && t1 < closest_t) {
+					closest_t = t1;
+					closestPrimitive = sphere;
+				}
+				if (t2 >= tMin && t2 <= tMax && t2 < closest_t) {
+					closest_t = t2;
+					closestPrimitive = sphere;
+				}
+			}
+			foreach (var plane in _scene.Planes) {
+				var t = IntersectRayPlane(O, D, plane);
+				if (t >= tMin && t <= tMax && t < closest_t) {
+					closest_t = t;
+					closestPrimitive = plane;
+				}
+			}
+			foreach (var box in _scene.Boxes) {
+				IntersectRayBox(O, D, box);
+			}
 
-		    var t1 = (-k2 + (double)Math.Sqrt(discr)) / (2 * k1);
-		    var t2 = (-k2 - (double)Math.Sqrt(discr)) / (2 * k1);
-		    return (t1, t2);
-	    }
+			return (closestPrimitive, closest_t);
+		}
 
-	    private double IntersectRayPlane(Vector O, Vector D, Plane S) {
+		private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
+			var C = sphere.Center;
+			var r = sphere.Radius;
+			var oc = O.Subtract(C);
 
-		    var normal = S.Normal.DotProduct(D);
+			var k1 = D.DotProduct(D);
+			var k2 = 2 * oc.DotProduct(D);
+			var k3 = oc.DotProduct(oc) - r * r;
+			var discr = k2 * k2 - 4 * k1 * k3;
+			if (discr < 0) {
+				return (double.PositiveInfinity, double.PositiveInfinity);
+			}
 
-		    if (Math.Abs(normal) > 0.00001)
-			    return -(S.A * O.D1 + S.B * O.D2 + S.C * O.D3 + S.D) / (S.A * D.D1 + S.B * D.D2 + S.C * D.D3);
-		    else return double.PositiveInfinity;
+			var t1 = (-k2 + (double) Math.Sqrt(discr)) / (2 * k1);
+			var t2 = (-k2 - (double) Math.Sqrt(discr)) / (2 * k1);
+			return (t1, t2);
+		}
 
-	    }
+		private double IntersectRayPlane(Vector O, Vector D, Plane S) {
+			var normal = S.Normal.DotProduct(D);
 
-	    private double ComputeLighting(Vector P, Vector N, Vector V, int s, double tMax) {
-		    var i = 0.0;
-		    Vector L = null;
-		    foreach (var light in _scene.Lights) {
-			    if (light.Type == LightType.Ambient) {
-				    i += light.Intensity;
-			    } else {
-				    if (light.Type == LightType.Point) {
-					    L = light.Position.Subtract(P);
-					    tMax = 1;
-				    }
-				    if (light.Type == LightType.Direct) {
-					    L = light.Direction;
-					    tMax = double.PositiveInfinity;
-				    }
+			if (Math.Abs(normal) > 0.00001)
+				return -(S.A * O.D1 + S.B * O.D2 + S.C * O.D3 + S.D) / (S.A * D.D1 + S.B * D.D2 + S.C * D.D3);
+			else return double.PositiveInfinity;
+		}
 
-                    var (shadow_sphere, _) = ClosestIntersection(P, L, 0.001, tMax);
-                    if (shadow_sphere != null)
-                        continue;
+		private (double, double) IntersectRayBox(Vector O, Vector D, Box box) {
+			var tx0 = (box.Min.D1 - O.D1) / D.D1;
+			var tx1 = (box.Max.D1 - O.D1) / D.D1;
+			//var txMax = Math.m
+			return (0, 0);
+		}
 
-                    var nDotL = N.DotProduct(L);
+		private double ComputeLighting(Vector point, Vector normal, Vector view, int specular) {
+			var i = 0.0;
+			Vector L = null;
+			foreach (var light in _scene.Lights) {
+				if (light.Type == LightType.Ambient) {
+					i += light.Intensity;
+				} else {
+					double tMax = 0;
+					if (light.Type == LightType.Point) {
+						L = light.Position.Subtract(point);
+						tMax = 1;
+					}
+					if (light.Type == LightType.Direct) {
+						L = light.Direction.Multiply(-1);
+						tMax = double.PositiveInfinity;
+					}
 
-				    if (nDotL > 0) {
-					    i += light.Intensity * nDotL / (N.Lenght() * L.Lenght());
-				    }
+					var (shadow_sphere, _) = ClosestIntersection(point, L, 0.001, tMax);
+					if (shadow_sphere != null)
+						continue;
 
-				    if (s == -1) continue;
+					var nDotL = normal.DotProduct(L);
 
-				    var R = ReflectRay(L, N);
-				    var rDotV = R.DotProduct(V);
-				    if (rDotV > 0) {
-						var tmp = light.Intensity * Math.Pow(rDotV / (R.Lenght() * V.Lenght()), s);
-					    i += (double)tmp;
-				    }
-			    }
-		    }
-		    return i;
-	    }
+					if (nDotL > 0) {
+						var intensity = light.Intensity * nDotL / (normal.Lenght() * L.Lenght());
+						i += intensity;
+					}
 
-	    private Vector ReflectRay(Vector v1, Vector v2) {
-		    return v2.Multiply(2 * v1.DotProduct(v2)).Subtract(v1);
-	    }
+					if (specular == -1) continue;
 
-    }
+					var R = ReflectRay(L, normal);
+					var rDotV = R.DotProduct(view);
+					if (rDotV > 0) {
+						var tmp = light.Intensity * Math.Pow(rDotV / (R.Lenght() * view.Lenght()), specular);
+						i += (double) tmp;
+					}
+				}
+			}
+			return i;
+		}
+
+		private Vector ReflectRay(Vector v1, Vector v2) {
+			return v2.Multiply(2 * v1.DotProduct(v2)).Subtract(v1);
+		}
+
+	}
 }

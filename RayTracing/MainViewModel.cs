@@ -64,7 +64,14 @@ namespace RayTracing {
 						Color = Color.FromRgb(0, 255, 0),
 						Specular = 10,
 						Reflect = 0.4
-					}
+					},
+					//new Sphere {
+					//    Center = new Vector(0, 0, 5007),
+					//    Radius = 5000,
+					//    Color = Color.FromRgb(110, 157, 153),
+					//    Reflect = 0.0,
+					//    Specular = 50
+					//}
 				}),
 				Lights = new List<Light>(
 					new[] {
@@ -80,7 +87,7 @@ namespace RayTracing {
 						new Light {
 							Type = LightType.Direct,
 							Intensity = 0.2,
-							Direction = new Vector(1, 4, 4)
+							Direction = new Vector(3, -1, 1)
 						}
 					}
 				),
@@ -92,7 +99,7 @@ namespace RayTracing {
 						C = 0,
 						D = 1,
 						Reflect = 0.5,
-						Specular = -1
+						Specular = 100
 					},
 					new Plane {
 						Color = Color.FromRgb(110, 157, 153),
@@ -100,24 +107,23 @@ namespace RayTracing {
 						B = 0,
 						C = 1,
 						D = -7,
-						Reflect = 0.4,
-						Specular = -1
+						Reflect = 0.3,
+						Specular = 50
 					}
 				}
 			};
-			
+
 			var options = new RenderOptions {
 				BgColor = bg,
-				CameraPos = new Vector(0, 6, 6),
+				CameraPos = new Vector(6, 0, 2),
 				ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
 				RecursionDepth = 3,
-				CameraRotationX = -90,
-				CameraRotationY = 180
-            };
+				CameraRotationY = 80
+			};
 
 			Console.WriteLine("Started");
 

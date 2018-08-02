@@ -3,12 +3,8 @@ using RayTracing.Models;
 
 namespace RayTracing.Primitives
 {
-    class Plane : IPrimitive
+    class Plane : Primitive
     {
-		public Color Color { get; set; }
-	    public int Specular { get; set; }
-	    public double Reflect { get; set; }
-
 	    public double A { get; set; }
 		public double B { get; set; }
 		public double C { get; set; }
