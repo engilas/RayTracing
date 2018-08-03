@@ -66,5 +66,9 @@ namespace RayTracing.Models
 		public static Vector FromColor(Color c) {
 			return new Vector(c.R, c.G, c.B);
 		}
+
+		public Vector Invert() {
+			return new Vector(1 / D1, 1 / D2, 1 / D3);
+		}
 	}
 }

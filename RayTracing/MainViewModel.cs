@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Windows.Media;
 using RayTracing.Models;
 using RayTracing.Primitives;
@@ -43,54 +42,45 @@ namespace RayTracing {
 			var bg = Color.FromRgb(0, 0, 0);
 
 			var scene = new Scene {
-				Spheres = new List<Sphere>(new[] {
+				Spheres = new List<Sphere> {
 					new Sphere {
-						Center = new Vector(0, -1, 3),
+						Center = new Vector(0, -1, 5),
 						Radius = 1,
 						Color = Color.FromRgb(255, 0, 0),
 						Specular = 500,
 						Reflect = 0.2
 					},
 					new Sphere {
-						Center = new Vector(2, 0, 4),
+						Center = new Vector(2, 0, 6),
 						Radius = 1,
 						Color = Color.FromRgb(0, 0, 255),
 						Specular = 500,
 						Reflect = 0.3
 					},
 					new Sphere {
-						Center = new Vector(-2, 0, 4),
+						Center = new Vector(-2, 0, 6),
 						Radius = 1,
 						Color = Color.FromRgb(0, 255, 0),
 						Specular = 10,
 						Reflect = 0.4
-					},
-					//new Sphere {
-					//    Center = new Vector(0, 0, 5007),
-					//    Radius = 5000,
-					//    Color = Color.FromRgb(110, 157, 153),
-					//    Reflect = 0.0,
-					//    Specular = 50
-					//}
-				}),
-				Lights = new List<Light>(
-					new[] {
-						new Light {
-							Type = LightType.Ambient,
-							Intensity = 0.2
-						},
-						new Light {
-							Type = LightType.Point,
-							Intensity = 0.6,
-							Position = new Vector(2, 1, 0)
-						},
-						new Light {
-							Type = LightType.Direct,
-							Intensity = 0.2,
-							Direction = new Vector(3, -1, 1)
-						}
 					}
-				),
+				},
+				Lights = new List<Light> {
+					new Light {
+						Type = LightType.Ambient,
+						Intensity = 0.2
+					},
+					new Light {
+						Type = LightType.Point,
+						Intensity = 0.6,
+						Position = new Vector(2, 1, 0)
+					},
+					new Light {
+						Type = LightType.Direct,
+						Intensity = 0.2,
+						Direction = new Vector(3, -1, 1)
+					}
+				},
 				Planes = new List<Plane> {
 					new Plane {
 						Color = Color.FromRgb(255, 255, 0),
@@ -105,24 +95,34 @@ namespace RayTracing {
 						Color = Color.FromRgb(110, 157, 153),
 						A = 0.0,
 						B = 0,
-						C = 1,
-						D = -7,
+						C = -1,
+						D = 7,
 						Reflect = 0.3,
 						Specular = 50
+					}
+				},
+				Boxes = new List<Box> {
+					new Box {
+						Color = Color.FromRgb(251, 0, 255),
+						Min = new Vector(2, 1.25, 5),
+						Max = new Vector(3, 2, 6),
+						Reflect = 0.4,
+						Specular = 200
 					}
 				}
 			};
 
 			var options = new RenderOptions {
 				BgColor = bg,
-				CameraPos = new Vector(6, 0, 2),
+				CameraPos = new Vector(0, 0, 0),
 				ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
 				RecursionDepth = 3,
-				CameraRotationY = 80
+				CameraRotationX = 0,
+				CameraRotationY = 0
 			};
 
 			Console.WriteLine("Started");

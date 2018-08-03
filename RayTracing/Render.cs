@@ -41,14 +41,14 @@ namespace RayTracing {
 
 		private void NormalizePlanes() {
 			foreach (var plane in _scene.Planes) {
-				if (plane.D >= 0) {
-					continue;
-				}
+				var a = IntersectRayPlane(_options.CameraPos, plane.Normal, plane);
 
-				plane.D = -plane.D;
-				plane.A = -plane.A;
-				plane.B = -plane.B;
-				plane.C = -plane.C;
+				if (a > 0) {
+					plane.D = -plane.D;
+					plane.A = -plane.A;
+					plane.B = -plane.B;
+					plane.C = -plane.C;
+				}
 			}
 		}
 
@@ -70,6 +70,10 @@ namespace RayTracing {
 
 			if (closestPrimitive is Sphere sphere) {
 				normal = P.Subtract(sphere.Center);
+			}
+
+			if (closestPrimitive is Box box) {
+				normal = box.GetNormal(O, D, tMin);
 			}
 
 			normal = normal.Multiply(1 / normal.Lenght()); //unit vector
@@ -108,8 +112,13 @@ namespace RayTracing {
 					closestPrimitive = plane;
 				}
 			}
+			var invertDir = D.Invert();
 			foreach (var box in _scene.Boxes) {
-				IntersectRayBox(O, D, box);
+				var t = IntersectRayBox(O, invertDir, box);
+				if (t >= tMin && t <= tMax && t < closest_t) {
+					closest_t = t;
+					closestPrimitive = box;
+				}
 			}
 
 			return (closestPrimitive, closest_t);
@@ -128,8 +137,8 @@ namespace RayTracing {
 				return (double.PositiveInfinity, double.PositiveInfinity);
 			}
 
-			var t1 = (-k2 + (double) Math.Sqrt(discr)) / (2 * k1);
-			var t2 = (-k2 - (double) Math.Sqrt(discr)) / (2 * k1);
+			var t1 = (-k2 + Math.Sqrt(discr)) / (2 * k1);
+			var t2 = (-k2 - Math.Sqrt(discr)) / (2 * k1);
 			return (t1, t2);
 		}
 
@@ -141,11 +150,26 @@ namespace RayTracing {
 			else return double.PositiveInfinity;
 		}
 
-		private (double, double) IntersectRayBox(Vector O, Vector D, Box box) {
-			var tx0 = (box.Min.D1 - O.D1) / D.D1;
-			var tx1 = (box.Max.D1 - O.D1) / D.D1;
-			//var txMax = Math.m
-			return (0, 0);
+		private double IntersectRayBox(Vector O, Vector D, Box box) {
+			var lo = D.D1*(box.Min.D1 - O.D1);
+			var hi = D.D1*(box.Max.D1 - O.D1);
+			var tmin  = Math.Min(lo, hi);
+			var tmax = Math.Max(lo, hi);
+			
+			var lo1 = D.D2*(box.Min.D2 - O.D2);
+			var hi1 = D.D2*(box.Max.D2 - O.D2);
+			tmin  = Math.Max(tmin, Math.Min(lo1, hi1));
+			tmax = Math.Min(tmax, Math.Max(lo1, hi1));
+
+			var lo2 = D.D3*(box.Min.D3 - O.D3);
+			var hi2 = D.D3*(box.Max.D3 - O.D3);
+			tmin  = Math.Max(tmin, Math.Min(lo2, hi2));
+			tmax = Math.Min(tmax, Math.Max(lo2, hi2));
+
+			if ((tmin <= tmax) && (tmax > 0)) {
+				return tmin;
+			} else 
+				return double.PositiveInfinity;
 		}
 
 		private double ComputeLighting(Vector point, Vector normal, Vector view, int specular) {
