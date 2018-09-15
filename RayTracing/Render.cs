@@ -75,11 +75,6 @@ namespace RayTracing {
 					plane.C = -plane.C;
 				}
 			}
-
-		    foreach (var sphere in _scene.Spheres)
-		    {
-		        sphere.Init(_options.CameraPos);
-		    }
 		}
 
 		private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth) {
@@ -172,19 +167,22 @@ namespace RayTracing {
 		}
 
 		private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
-			var k1 = D.DotProduct(D);
-			var k2 = 2 * sphere.Oc.DotProduct(D);
-			var discr = k2 * k2 - 4 * k1 * sphere.K3;
-			if (discr < 0) {
-				return (double.PositiveInfinity, double.PositiveInfinity);
-			}
+		    var C = sphere.Center;
+		    var r = sphere.Radius;
+		    var oc = O.Subtract(C);
 
-		    var p1 = Math.Sqrt(discr);
-		    var p2 = 2 * k1;
-            
-            var t1 = (-k2 + p1) / p2;
-			var t2 = (-k2 - p1) / p2;
-			return (t1, t2);
+		    var k1 = D.DotProduct(D);
+		    var k2 = 2 * oc.DotProduct(D);
+		    var k3 = oc.DotProduct(oc) - r * r;
+		    var discr = k2 * k2 - 4 * k1 * k3;
+		    if (discr < 0)
+		    {
+		        return (double.PositiveInfinity, double.PositiveInfinity);
+		    }
+
+		    var t1 = (-k2 + Math.Sqrt(discr)) / (2 * k1);
+		    var t2 = (-k2 - Math.Sqrt(discr)) / (2 * k1);
+            return (t1, t2);
 		}
 
 		private double IntersectRayPlane(Vector O, Vector D, Plane S) {
