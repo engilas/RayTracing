@@ -225,32 +225,36 @@ namespace RayTracing {
 	        Vector o, d;
 	        o = d = null;
 
-	        if (paraboloid.Direction == Direction.Z)
+	        if (paraboloid.AxisDirection == Axis.Z)
 	        {
 	            o = new Vector(O.D1, O.D2, O.D3);
 	            d = new Vector(D.D1, D.D2, D.D3);
             }
-            else if (paraboloid.Direction == Direction.Y)
+            else if (paraboloid.AxisDirection == Axis.Y)
 	        {
 	            o = new Vector(O.D1, O.D3, O.D2);
                 d = new Vector(D.D1, D.D3, D.D2);
 	        }
-	        else if (paraboloid.Direction == Direction.X)
+	        else if (paraboloid.AxisDirection == Axis.X)
 	        {
 	            o = new Vector(O.D3, O.D2, O.D1);
 	            d = new Vector(D.D3, D.D2, D.D1);
-	        } else throw new Exception($"Unknown direction {paraboloid.Direction}");
+	        } else throw new Exception($"Unknown direction {paraboloid.AxisDirection}");
 
-
+	        int dirMultiplier = 1;
+	        if (paraboloid.Direction == Direction.Down)
+	        {
+	            dirMultiplier = -1;
+	        }
 
             var width = paraboloid.Width;
 
             //x^2+y^2+wz=0
-            var p1 = 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
-            var p2 = -2 * d.D1 * o.D1 - 2 * d.D2 * o.D2 + width * d.D3;
-            var p3 = Math.Sqrt(Pow2(2 * d.D1 * o.D1 + 2 * d.D2 * o.D2 - width * d.D3) -
-                               4 * (Pow2(d.D1) + Pow2(d.D2)) *
-                               (Pow2(o.D1) + Pow2(o.D2) - width * o.D3));//cache this line
+            var p1 = dirMultiplier * 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
+            var p2 = dirMultiplier * (-2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) + width * d.D3;
+            var p3 = Math.Sqrt(Pow2(dirMultiplier * (2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) - width * d.D3) -
+                               4 * (dirMultiplier * (Pow2(d.D1) + Pow2(d.D2))) *
+                               (dirMultiplier * (Pow2(o.D1) + Pow2(o.D2)) - width * o.D3));//cache this line
 
             var t1 = p1 * (p2 - p3);
             var t2 = p1 * (p2 + p3);
@@ -258,9 +262,9 @@ namespace RayTracing {
             //edge by direction
             var tMin = Math.Min(t1, t2);
 	        var tMax = Math.Max(t1, t2);
-	        if (paraboloid.Edge > 0 && d.D3 * tMin + o.D3 > paraboloid.Edge)
+	        if (paraboloid.Edge > 0 && dirMultiplier * (d.D3 * tMin + o.D3) > paraboloid.Edge)
 	        {
-	            if (d.D3 * tMax + o.D3 > paraboloid.Edge)
+	            if (dirMultiplier * (d.D3 * tMax + o.D3) > paraboloid.Edge)
 	                return double.PositiveInfinity;
 	            else return tMax;
 	        }

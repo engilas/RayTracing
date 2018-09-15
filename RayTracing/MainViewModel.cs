@@ -142,9 +142,10 @@ namespace RayTracing {
                         Color = Color.FromRgb(255, 0, 235),
                         Reflect = 0.2,
                         Specular = 200,
-                        Direction = Direction.Y,
+                        AxisDirection = Axis.Y,
+                        Direction = Direction.Down,
                         Width = 1,
-                        Edge = 3
+                        Edge = 0.5
                     }
                 }
             };
@@ -154,7 +155,7 @@ namespace RayTracing {
                 //CameraPos = new Vector(-2, 0, -2),
                 //CameraPos = new Vector(1, 5, 0),
                 //CameraPos = new Vector(5, 0, 0),
-			    CameraPos = new Vector(0, 2, -4),
+			    CameraPos = new Vector(0, 0, -4),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
