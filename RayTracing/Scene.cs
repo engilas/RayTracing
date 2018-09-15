@@ -9,5 +9,6 @@ namespace RayTracing
 		public List<Light> Lights { get; set; } = new List<Light>();
 		public List<Plane> Planes { get; set; } = new List<Plane>();
 	    public List<Box> Boxes { get; set; } = new List<Box>();
+        public List<Surface> Surfaces { get; set; } = new List<Surface>();
     }
 }

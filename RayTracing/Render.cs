@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using RayTracing.Models;
@@ -18,13 +19,15 @@ namespace RayTracing {
 		}
 
 		public void Process() {
-			var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
+            var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
 			var yEdge = (int) Math.Round(_options.CanvasHeight / 2d);
 		    var pixelCount = _options.CanvasWidth * _options.CanvasHeight;
             
-            NormalizePlanes();
+            InitPrimitives();
 
 		    var sw = Stopwatch.StartNew();
+
+            var rotationMtx = new RotationMatrix(_options.CameraRotationX, _options.CameraRotationY, _options.CameraRotationZ);
 
             var result = new Color[pixelCount];
             Parallel.For(0, pixelCount, i =>
@@ -34,9 +37,9 @@ namespace RayTracing {
 
                 var D = CanvasToViewport(x, y);
 
-                D = D.MultiplyMatrix(Helpers.GetXRotation(_options.CameraRotationX));
-                D = D.MultiplyMatrix(Helpers.GetYRotation(_options.CameraRotationY));
-                D = D.MultiplyMatrix(Helpers.GetZRotation(_options.CameraRotationZ));
+                D = D.MultiplyMatrix(rotationMtx.X);
+                D = D.MultiplyMatrix(rotationMtx.Y);
+                D = D.MultiplyMatrix(rotationMtx.Z);
 
                 var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
 
@@ -61,7 +64,7 @@ namespace RayTracing {
 				y * _options.ViewportHeight / _options.CanvasHeight, _options.ViewportDistance);
 		}
 
-		private void NormalizePlanes() {
+		private void InitPrimitives() {
 			foreach (var plane in _scene.Planes) {
 				var a = IntersectRayPlane(_options.CameraPos, plane.Normal, plane);
 
@@ -72,6 +75,11 @@ namespace RayTracing {
 					plane.C = -plane.C;
 				}
 			}
+
+		    foreach (var sphere in _scene.Spheres)
+		    {
+		        sphere.Init(_options.CameraPos);
+		    }
 		}
 
 		private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth) {
@@ -97,8 +105,13 @@ namespace RayTracing {
 			if (closestPrimitive is Box box) {
 				normal = box.GetNormal(O, D, tMin);
 			}
+            if (closestPrimitive is Surface surface)
+            {
+                //return Vector.FromColor(Color.FromRgb(255, 255, 255));
+                normal = surface.GetNormal(O, D, closest_t);
+            }
 
-			normal = normal.Multiply(1 / normal.Lenght()); //unit vector
+            normal = normal.Multiply(1 / normal.Lenght()); //unit vector
 
 			var local_color = Vector.FromColor(closestPrimitive.Color)
 				.Multiply(ComputeLighting(P, normal, view, closestPrimitive.Specular));
@@ -142,25 +155,35 @@ namespace RayTracing {
 					closestPrimitive = box;
 				}
 			}
+		    foreach (var surface in _scene.Surfaces)
+		    {
+		        var t = IntersectRayParaboloid(surface, O, D);
+		        if (!double.IsNaN(t))
+		        {
+		            if (t >= tMin && t <= tMax && t < closest_t)
+		            {
+		                closest_t = t;
+		                closestPrimitive = surface;
+		            }
+                }
+            }
 
 			return (closestPrimitive, closest_t);
 		}
 
 		private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
-			var C = sphere.Center;
-			var r = sphere.Radius;
-			var oc = O.Subtract(C);
-
 			var k1 = D.DotProduct(D);
-			var k2 = 2 * oc.DotProduct(D);
-			var k3 = oc.DotProduct(oc) - r * r;
-			var discr = k2 * k2 - 4 * k1 * k3;
+			var k2 = 2 * sphere.Oc.DotProduct(D);
+			var discr = k2 * k2 - 4 * k1 * sphere.K3;
 			if (discr < 0) {
 				return (double.PositiveInfinity, double.PositiveInfinity);
 			}
 
-			var t1 = (-k2 + Math.Sqrt(discr)) / (2 * k1);
-			var t2 = (-k2 - Math.Sqrt(discr)) / (2 * k1);
+		    var p1 = Math.Sqrt(discr);
+		    var p2 = 2 * k1;
+            
+            var t1 = (-k2 + p1) / p2;
+			var t2 = (-k2 - p1) / p2;
 			return (t1, t2);
 		}
 
@@ -194,6 +217,35 @@ namespace RayTracing {
 				return double.PositiveInfinity;
 		}
 
+	    private double IntersectRayParaboloid(Surface paraboloid, Vector O, Vector D)
+	    {
+            var o = new Vector(O.D1, O.D3, O.D2);
+            var d = new Vector(D.D1, D.D3, D.D2);
+            
+            //x^2+y^2+z=0
+	        var p1 = 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
+            var p2 = -2 * d.D1 * o.D1 - 2 * d.D2 * o.D2 + d.D3;
+	        var p3 = Math.Sqrt(Pow2(2 * d.D1 * o.D1 + 2 * d.D2 * o.D2 - d.D3) -
+	                           4 * (Pow2(d.D1) + Pow2(d.D2)) *
+	                           (Pow2(o.D1) + Pow2(o.D2) - o.D3));//cache this line
+
+            var t1 = p1 * (p2 - p3);
+            var t2 = p1 * (p2 + p3);
+
+            //ограничение по Y
+            var t = Math.Min(t1, t2);
+	        if (D.D2 * t + O.D2 > 2)
+	            return double.PositiveInfinity;
+
+	        return t;
+	    }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+	    private double Pow2(double val)
+        {
+            return val * val;
+        }
+
 		private double ComputeLighting(Vector point, Vector normal, Vector view, int specular) {
 			var i = 0.0;
 			Vector L = null;
@@ -211,8 +263,8 @@ namespace RayTracing {
 						tMax = double.PositiveInfinity;
 					}
 
-					var (shadow_sphere, _) = ClosestIntersection(point, L, 0.001, tMax);
-					if (shadow_sphere != null)
+					var (shadowPrimitive, _) = ClosestIntersection(point, L, 0.001, tMax);
+					if (shadowPrimitive != null)
 						continue;
 
 					var nDotL = normal.DotProduct(L);

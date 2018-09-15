@@ -65,9 +65,11 @@
     <Compile Include="Primitives\Light.cs" />
     <Compile Include="Primitives\Plane.cs" />
     <Compile Include="Primitives\Sphere.cs" />
+    <Compile Include="Primitives\Surface.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Render.cs" />
     <Compile Include="RenderOptions.cs" />
+    <Compile Include="RotationMatrix.cs" />
     <Compile Include="Scene.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
