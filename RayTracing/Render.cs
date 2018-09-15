@@ -30,21 +30,23 @@ namespace RayTracing {
             var rotationMtx = new RotationMatrix(_options.CameraRotationX, _options.CameraRotationY, _options.CameraRotationZ);
 
             var result = new Color[pixelCount];
-            Parallel.For(0, pixelCount, i =>
-            {
-                var x = i % _options.CanvasWidth - xEdge;
-                var y = i / _options.CanvasHeight - yEdge;
+		    Parallel.For(0, pixelCount, i =>
+		            //for (int i = 0; i < pixelCount; i++)
+		        {
+		            var x = i % _options.CanvasWidth - xEdge;
+		            var y = i / _options.CanvasHeight - yEdge;
 
-                var D = CanvasToViewport(x, y);
+		            var D = CanvasToViewport(x, y);
 
-                D = D.MultiplyMatrix(rotationMtx.X);
-                D = D.MultiplyMatrix(rotationMtx.Y);
-                D = D.MultiplyMatrix(rotationMtx.Z);
+		            D = D.MultiplyMatrix(rotationMtx.X);
+		            D = D.MultiplyMatrix(rotationMtx.Y);
+		            D = D.MultiplyMatrix(rotationMtx.Z);
 
-                var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
+		            var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
 
-                result[i] = color.Clamp().ToColor();
-            });
+		            result[i] = color.Clamp().ToColor();
+		        }
+		    );
 
             for (int i = 0; i < pixelCount; i++)
             {
@@ -91,24 +93,27 @@ namespace RayTracing {
 
 			if (closestPrimitive is Plane plane) {
 				normal = plane.Normal;
-			}
+            }
 
 			if (closestPrimitive is Sphere sphere) {
+			    if (sphere.LightTransparent)
+			    {
+			        return Vector.FromColor(sphere.Color);
+			    }
 				normal = P.Subtract(sphere.Center);
-			}
+            }
 
 			if (closestPrimitive is Box box) {
 				normal = box.GetNormal(O, D, tMin);
-			}
+            }
             if (closestPrimitive is Surface surface)
             {
-                //return Vector.FromColor(Color.FromRgb(255, 255, 255));
                 normal = surface.GetNormal(O, D, closest_t);
             }
 
-            normal = normal.Multiply(1 / normal.Lenght()); //unit vector
+		    normal = normal.Multiply(1 / normal.Lenght()); //unit vector
 
-			var local_color = Vector.FromColor(closestPrimitive.Color)
+            var local_color = Vector.FromColor(closestPrimitive.Color)
 				.Multiply(ComputeLighting(P, normal, view, closestPrimitive.Specular));
 
 			var r = closestPrimitive.Reflect;
@@ -217,25 +222,50 @@ namespace RayTracing {
 
 	    private double IntersectRayParaboloid(Surface paraboloid, Vector O, Vector D)
 	    {
-            var o = new Vector(O.D1, O.D3, O.D2);
-            var d = new Vector(D.D1, D.D3, D.D2);
-            
-            //x^2+y^2+z=0
-	        var p1 = 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
-            var p2 = -2 * d.D1 * o.D1 - 2 * d.D2 * o.D2 + d.D3;
-	        var p3 = Math.Sqrt(Pow2(2 * d.D1 * o.D1 + 2 * d.D2 * o.D2 - d.D3) -
-	                           4 * (Pow2(d.D1) + Pow2(d.D2)) *
-	                           (Pow2(o.D1) + Pow2(o.D2) - o.D3));//cache this line
+	        Vector o, d;
+	        o = d = null;
+
+	        if (paraboloid.Direction == Direction.Z)
+	        {
+	            o = new Vector(O.D1, O.D2, O.D3);
+	            d = new Vector(D.D1, D.D2, D.D3);
+            }
+            else if (paraboloid.Direction == Direction.Y)
+	        {
+	            o = new Vector(O.D1, O.D3, O.D2);
+                d = new Vector(D.D1, D.D3, D.D2);
+	        }
+	        else if (paraboloid.Direction == Direction.X)
+	        {
+	            o = new Vector(O.D3, O.D2, O.D1);
+	            d = new Vector(D.D3, D.D2, D.D1);
+	        } else throw new Exception($"Unknown direction {paraboloid.Direction}");
+
+
+
+            var width = paraboloid.Width;
+
+            //x^2+y^2+wz=0
+            var p1 = 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
+            var p2 = -2 * d.D1 * o.D1 - 2 * d.D2 * o.D2 + width * d.D3;
+            var p3 = Math.Sqrt(Pow2(2 * d.D1 * o.D1 + 2 * d.D2 * o.D2 - width * d.D3) -
+                               4 * (Pow2(d.D1) + Pow2(d.D2)) *
+                               (Pow2(o.D1) + Pow2(o.D2) - width * o.D3));//cache this line
 
             var t1 = p1 * (p2 - p3);
             var t2 = p1 * (p2 + p3);
 
-            //ограничение по Y
-            var t = Math.Min(t1, t2);
-	        if (D.D2 * t + O.D2 > 2)
-	            return double.PositiveInfinity;
+            //edge by direction
+            var tMin = Math.Min(t1, t2);
+	        var tMax = Math.Max(t1, t2);
+	        if (paraboloid.Edge > 0 && d.D3 * tMin + o.D3 > paraboloid.Edge)
+	        {
+	            if (d.D3 * tMax + o.D3 > paraboloid.Edge)
+	                return double.PositiveInfinity;
+	            else return tMax;
+	        }
 
-	        return t;
+	        return tMin;
 	    }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -262,7 +292,7 @@ namespace RayTracing {
 					}
 
 					var (shadowPrimitive, _) = ClosestIntersection(point, L, 0.001, tMax);
-					if (shadowPrimitive != null)
+					if (shadowPrimitive != null && !shadowPrimitive.LightTransparent)
 						continue;
 
 					var nDotL = normal.DotProduct(L);
@@ -285,8 +315,8 @@ namespace RayTracing {
 			return i;
 		}
 
-		private Vector ReflectRay(Vector v1, Vector v2) {
-			return v2.Multiply(2 * v1.DotProduct(v2)).Subtract(v1);
+		private Vector ReflectRay(Vector r, Vector normal) {
+			return normal.Multiply(2 * r.DotProduct(normal)).Subtract(r);
 		}
 
 	}

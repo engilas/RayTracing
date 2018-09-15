@@ -41,6 +41,8 @@ namespace RayTracing {
 			Height = 800;
 			var bg = Color.FromRgb(0, 0, 0);
 
+            var pointLight = new Vector(3, 5, 0);
+
 			var scene = new Scene {
                 Spheres = new List<Sphere> {
                     new Sphere {
@@ -63,6 +65,29 @@ namespace RayTracing {
                         Color = Color.FromRgb(0, 255, 0),
                         Specular = 10,
                         Reflect = 0.4
+                    },
+                    new Sphere {
+                        Center = new Vector(0.7, 1.8, -1.7),
+                        Radius = 0.3,
+                        Color = Color.FromRgb(255, 0, 0),
+                        Specular = 500,
+                        Reflect = 0.2
+                    },
+                    new Sphere {
+                        Center = new Vector(0.7, 1.8, 1.7),
+                        Radius = 0.3,
+                        Color = Color.FromRgb(255, 0, 0),
+                        Specular = 500,
+                        Reflect = 0.2
+                    },
+                    new Sphere
+                    {
+                        Color = Color.FromRgb(255, 255, 255),
+                        Radius = 0.1,
+                        Center = pointLight,
+                        Reflect = 0,
+                        Specular = -1,
+                        LightTransparent = true,
                     }
                 },
                 Lights = new List<Light> {
@@ -73,7 +98,7 @@ namespace RayTracing {
                     new Light {
                         Type = LightType.Point,
                         Intensity = 0.6,
-                        Position = new Vector(2, 1, 0)
+                        Position = pointLight
                     },
                     new Light {
                         Type = LightType.Direct,
@@ -88,7 +113,7 @@ namespace RayTracing {
                         B = 1,
                         C = 0,
                         D = 1,
-                        Reflect = 0.7,
+                        Reflect = 0.3,
                         Specular = 100
                     },
                     new Plane {
@@ -104,21 +129,24 @@ namespace RayTracing {
                 //Boxes = new List<Box> {
                 //    new Box {
                 //        Color = Color.FromRgb(255, 147, 0),
-                //        Min = new Vector(-0.3, -1, 4),
-                //        Max = new Vector(0.3, 1, 6),
-                //        Reflect = 0.1,
+                //        Min = new Vector(-20, 1, -20),
+                //        Max = new Vector(20, 1.5, 20),
+                //        Reflect = 0.2,
                 //        Specular = 200
                 //    }
                 //},
-                //Surfaces = new List<Surface>
-                //{
-                //    new Surface
-                //    {
-                //        Color = Color.FromRgb(0, 214, 255),
-                //        Reflect = 0,
-                //        Specular = 200
-                //    }
-                //}
+                Surfaces = new List<Surface>
+                {
+                    new Surface
+                    {
+                        Color = Color.FromRgb(255, 0, 235),
+                        Reflect = 0.2,
+                        Specular = 200,
+                        Direction = Direction.Y,
+                        Width = 1,
+                        Edge = 3
+                    }
+                }
             };
 
 			var options = new RenderOptions {
@@ -126,14 +154,14 @@ namespace RayTracing {
                 //CameraPos = new Vector(-2, 0, -2),
                 //CameraPos = new Vector(1, 5, 0),
                 //CameraPos = new Vector(5, 0, 0),
-			    CameraPos = new Vector(0, 0, -7),
+			    CameraPos = new Vector(0, 2, -4),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
 				RecursionDepth = 3,
-				//CameraRotationX = -30,
+				//CameraRotationX = -45,
 				//CameraRotationY = -30
 			};
 

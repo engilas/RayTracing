@@ -6,5 +6,6 @@ namespace RayTracing.Primitives {
 		public Color Color { get; set; }
 		public int Specular { get; set; }
 		public double Reflect { get; set; }
-	}
+	    public bool LightTransparent { get; set; }
+    }
 }
