@@ -145,7 +145,8 @@ namespace RayTracing {
                         AxisDirection = Axis.Y,
                         Direction = Direction.Down,
                         Width = 1,
-                        Edge = 0.5
+                        //Edge = 0.5,
+                        Offset = new Vector(-2, 8, 0)
                     }
                 }
             };
@@ -155,7 +156,7 @@ namespace RayTracing {
                 //CameraPos = new Vector(-2, 0, -2),
                 //CameraPos = new Vector(1, 5, 0),
                 //CameraPos = new Vector(5, 0, 0),
-			    CameraPos = new Vector(0, 0, -4),
+			    CameraPos = new Vector(-9, 0, 2),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
@@ -163,7 +164,7 @@ namespace RayTracing {
 				ViewportDistance = 1,
 				RecursionDepth = 3,
 				//CameraRotationX = -45,
-				//CameraRotationY = -30
+				CameraRotationY = -90
 			};
 
 			Console.WriteLine("Started");

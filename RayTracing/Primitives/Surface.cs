@@ -21,6 +21,7 @@ namespace RayTracing.Primitives
         public Axis AxisDirection { get; set; }
         public double Width { get; set; }
         public double Edge { get; set; }
+        public Vector Offset { get; set; }
 
         public Direction Direction { get; set; }
 
@@ -30,6 +31,10 @@ namespace RayTracing.Primitives
             if (Direction == Direction.Down)
             {
                 dirMultiplier = -1;
+            }
+            if (Offset != null)
+            {
+                o = new Vector(o.D1 - Offset.D1, o.D2 - Offset.D2, o.D3 - Offset.D3);
             }
 
             var a = AxisDirection == Axis.X ? -1 : dirMultiplier * 2 * (d.D1 * t + o.D1);

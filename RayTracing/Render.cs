@@ -222,23 +222,28 @@ namespace RayTracing {
 
 	    private double IntersectRayParaboloid(Surface paraboloid, Vector O, Vector D)
 	    {
-	        Vector o, d;
-	        o = d = null;
+	        var o = O;
+	        var d = D;
 
-	        if (paraboloid.AxisDirection == Axis.Z)
+	        if (paraboloid.Offset != null)
 	        {
-	            o = new Vector(O.D1, O.D2, O.D3);
-	            d = new Vector(D.D1, D.D2, D.D3);
+	            o = new Vector(o.D1 - paraboloid.Offset.D1, o.D2 - paraboloid.Offset.D2, o.D3 - paraboloid.Offset.D3);
+	        }
+
+            if (paraboloid.AxisDirection == Axis.Z)
+	        {
+	            o = new Vector(o.D1, o.D2, o.D3);
+	            d = new Vector(d.D1, d.D2, d.D3);
             }
             else if (paraboloid.AxisDirection == Axis.Y)
 	        {
-	            o = new Vector(O.D1, O.D3, O.D2);
-                d = new Vector(D.D1, D.D3, D.D2);
+	            o = new Vector(o.D1, o.D3, o.D2);
+                d = new Vector(d.D1, d.D3, d.D2);
 	        }
 	        else if (paraboloid.AxisDirection == Axis.X)
 	        {
-	            o = new Vector(O.D3, O.D2, O.D1);
-	            d = new Vector(D.D3, D.D2, D.D1);
+	            o = new Vector(o.D3, o.D2, o.D1);
+	            d = new Vector(d.D3, d.D2, d.D1);
 	        } else throw new Exception($"Unknown direction {paraboloid.AxisDirection}");
 
 	        int dirMultiplier = 1;
@@ -246,7 +251,7 @@ namespace RayTracing {
 	        {
 	            dirMultiplier = -1;
 	        }
-
+	        
             var width = paraboloid.Width;
 
             //x^2+y^2+wz=0
