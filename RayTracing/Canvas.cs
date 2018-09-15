@@ -22,7 +22,7 @@ namespace RayTracing
 
 	    public void DrawPoint(int x, int y, Color color) {
 		    var xScale = _width / 2f + x;
-		    var yScale = _height / 2f - y;
+		    var yScale = _height / 2f - y - 1;
 
 		    var colorData = new byte [] {color.B, color.G, color.R, 0};
 

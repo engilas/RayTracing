@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Windows.Media;
 using RayTracing.Models;
 using RayTracing.Primitives;
 
@@ -17,21 +20,40 @@ namespace RayTracing {
 		public void Process() {
 			var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
 			var yEdge = (int) Math.Round(_options.CanvasHeight / 2d);
+		    var pixelCount = _options.CanvasWidth * _options.CanvasHeight;
+            
+            NormalizePlanes();
 
-			NormalizePlanes();
+		    var sw = Stopwatch.StartNew();
 
-			for (int x = -xEdge + 1; x < xEdge; x++)
-			for (int y = -yEdge + 1; y < yEdge; y++) {
-				var D = CanvasToViewport(x, y);
+            var result = new Color[pixelCount];
+            Parallel.For(0, pixelCount, i =>
+            {
+                var x = i % _options.CanvasWidth - xEdge;
+                var y = i / _options.CanvasHeight - yEdge;
 
-				D = D.MultiplyMatrix(Helpers.GetXRotation(_options.CameraRotationX));
-				D = D.MultiplyMatrix(Helpers.GetYRotation(_options.CameraRotationY));
-				D = D.MultiplyMatrix(Helpers.GetZRotation(_options.CameraRotationZ));
+                var D = CanvasToViewport(x, y);
 
-				var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
+                D = D.MultiplyMatrix(Helpers.GetXRotation(_options.CameraRotationX));
+                D = D.MultiplyMatrix(Helpers.GetYRotation(_options.CameraRotationY));
+                D = D.MultiplyMatrix(Helpers.GetZRotation(_options.CameraRotationZ));
 
-				_canvas.DrawPoint(x, y, color.Clamp().ToColor());
-			}
+                var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
+
+                result[i] = color.Clamp().ToColor();
+            });
+
+            for (int i = 0; i < pixelCount; i++)
+            {
+                var x = i % _options.CanvasWidth - xEdge;
+                var y = i / _options.CanvasHeight - yEdge;
+                _canvas.DrawPoint(x, y, result[i]);
+            }
+
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
+
+			
 		}
 
 		private Vector CanvasToViewport(double x, double y) {
