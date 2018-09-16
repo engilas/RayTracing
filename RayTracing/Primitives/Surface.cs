@@ -23,6 +23,8 @@ namespace RayTracing.Primitives
         public double Edge { get; set; }
         public Vector Offset { get; set; }
 
+        public bool Torus { get; set; }
+
         public Direction Direction { get; set; }
 
         public Vector GetNormal(Vector o, Vector d, double t)
@@ -43,7 +45,7 @@ namespace RayTracing.Primitives
             //var x = d.D1 * t + o.D1;
             //var y = d.D2 * t + o.D2;
 
-            return new Vector(a, b, c).Multiply(dirMultiplier);
+            return new Vector(a, -b, c).Multiply(dirMultiplier);
         }
     }
 }

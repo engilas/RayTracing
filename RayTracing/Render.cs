@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using RayTracing.Models;
 using RayTracing.Primitives;
+using Plane = RayTracing.Primitives.Plane;
 
 namespace RayTracing {
 	class Render {
@@ -108,6 +112,11 @@ namespace RayTracing {
             }
             if (closestPrimitive is Surface surface)
             {
+                if (surface.Torus)
+                {
+                    return Vector.FromColor(Color.FromRgb(255,255,255));
+                }
+
                 normal = surface.GetNormal(O, D, closest_t);
             }
 
@@ -166,6 +175,17 @@ namespace RayTracing {
 		                closestPrimitive = surface;
 		            }
                 }
+            }
+		    {
+		        var t = IntersectRayTorus(O, D);
+		        if (!double.IsNaN(t))
+		        {
+		            if (t >= tMin && t <= tMax && t < closest_t)
+		            {
+		                closest_t = t;
+		                closestPrimitive = new Surface {Torus = true};
+		            }
+		        }
             }
 
 			return (closestPrimitive, closest_t);
@@ -255,11 +275,17 @@ namespace RayTracing {
             var width = paraboloid.Width;
 
             //x^2+y^2+wz=0
-            var p1 = dirMultiplier * 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
-            var p2 = dirMultiplier * (-2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) + width * d.D3;
-            var p3 = Math.Sqrt(Pow2(dirMultiplier * (2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) - width * d.D3) -
-                               4 * (dirMultiplier * (Pow2(d.D1) + Pow2(d.D2))) *
-                               (dirMultiplier * (Pow2(o.D1) + Pow2(o.D2)) - width * o.D3));//cache this line
+            //var p1 = dirMultiplier * 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
+            //var p2 = dirMultiplier * (-2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) + width * d.D3;
+            //var p3 = Math.Sqrt(Pow2(dirMultiplier * (2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) - width * d.D3) -
+            //                   4 * (dirMultiplier * (Pow2(d.D1) + Pow2(d.D2))) *
+            //                   (dirMultiplier * (Pow2(o.D1) + Pow2(o.D2)) - width * o.D3));//cache this line
+
+	        var p1 = 1 / (2 * (Pow2(d.D1) - Pow2(d.D2)));
+	        var p2 = (-2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) + width * d.D3;
+	        var p3 = Math.Sqrt(Pow2((2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) - width * d.D3) -
+	                           4 * ((Pow2(d.D1) - Pow2(d.D2))) *
+	                           ((Pow2(o.D1) - Pow2(o.D2)) - width * o.D3));//cache this line
 
             var t1 = p1 * (p2 - p3);
             var t2 = p1 * (p2 + p3);
@@ -267,14 +293,26 @@ namespace RayTracing {
             //edge by direction
             var tMin = Math.Min(t1, t2);
 	        var tMax = Math.Max(t1, t2);
-	        if (paraboloid.Edge > 0 && dirMultiplier * (d.D3 * tMin + o.D3) > paraboloid.Edge)
+	        if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D3 * tMin + o.D3)) > paraboloid.Edge)
 	        {
-	            if (dirMultiplier * (d.D3 * tMax + o.D3) > paraboloid.Edge)
+	            if (Math.Abs(dirMultiplier * (d.D3 * tMax + o.D3) )> paraboloid.Edge)
+	                return double.PositiveInfinity;
+	            else return tMax;
+	        }
+	        if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D2 * tMin + o.D2)) > paraboloid.Edge)
+	        {
+	            if (Math.Abs(dirMultiplier * (d.D2 * tMax + o.D2)) > paraboloid.Edge)
+	                return double.PositiveInfinity;
+	            else return tMax;
+	        }
+	        if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D1 * tMin + o.D1)) > paraboloid.Edge)
+	        {
+	            if (Math.Abs(dirMultiplier * (d.D1 * tMax + o.D1)) > paraboloid.Edge)
 	                return double.PositiveInfinity;
 	            else return tMax;
 	        }
 
-	        return tMin;
+            return tMin;
 	    }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -283,7 +321,71 @@ namespace RayTracing {
             return val * val;
         }
 
-		private double ComputeLighting(Vector point, Vector normal, Vector view, int specular) {
+	    private double IntersectRayTorus(Vector O, Vector D)
+	    {
+	        var o = O;
+	        var d = D;
+
+	        var r = 0.4d;
+	        var R = 1d;
+
+	        var ox = O.D1;
+	        var oy = O.D2;
+	        var oz = O.D3;
+
+	        var dx = D.D1;
+	        var dy = D.D2;
+	        var dz = D.D3;
+
+	        // define the coefficients of the quartic equation
+	        var sum_d_sqrd = dx * dx + dy * dy + dz * dz;
+	        var e = ox * ox + oy * oy + oz * oz -
+	                R * R - r * r;
+	        var f = ox * dx + oy * dy + oz * dz;
+	        var four_a_sqrd = 4.0 * R * R;
+
+	        var coeffs = new [] {
+	            e * e - four_a_sqrd * (r * r - oy * oy),
+	            4.0 * f * e + 2.0 * four_a_sqrd * oy * dy,
+	            2.0 * sum_d_sqrd * e + 4.0 * f * f + four_a_sqrd * dy * dy,
+	            4.0 * sum_d_sqrd * f,
+	            sum_d_sqrd* sum_d_sqrd
+	        }.Reverse().ToArray();
+
+            List<Complex> solve = new List<Complex>();
+	        solve = RealPolynomialRootFinder.FindRoots(coeffs);
+
+	        double min = double.PositiveInfinity;
+
+	        for (int i = 0; i < solve.Count; i++)
+	        {
+	            if (solve[i].Real > 0.0001 && solve[i].Imaginary < 0.0001 && solve[i].Real < min)
+	            {
+	                min = solve[i].Real;
+	            }
+	        }
+
+	        return min;
+	    }
+
+
+
+        /*
+  (p1                 )    (p2                    )   (p3     )  (p4                                                                       )   (p5           
+ -(d1*o1 + d2*o2 + d3*o3 + (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 - 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 - 2*R*d2^2 + 
+ 
+                                                  )   (p6    )          (p7               )         
+   2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 - 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
+
+ -(d1*o1 + d2*o2 + d3*o3 + (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 + 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 + 2*R*d2^2 + 2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 + 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
+
+ -(d1*o1 + d2*o2 + d3*o3 - (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 - 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 - 2*R*d2^2 + 2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 - 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
+
+ -(d1*o1 + d2*o2 + d3*o3 - (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 + 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 + 2*R*d2^2 + 2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 + 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
+
+        */
+
+        private double ComputeLighting(Vector point, Vector normal, Vector view, int specular) {
 			var i = 0.0;
 			Vector L = null;
 			foreach (var light in _scene.Lights) {
