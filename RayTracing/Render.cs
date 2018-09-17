@@ -353,19 +353,37 @@ namespace RayTracing {
 	        }.Reverse().ToArray();
 
             List<Complex> solve = new List<Complex>();
-	        solve = RealPolynomialRootFinder.FindRoots(coeffs);
 
-	        double min = double.PositiveInfinity;
+            try
+            {
+                solve = RealPolynomialRootFinder.FindRoots(coeffs);
+            }
+            catch
+            {
+                return double.PositiveInfinity;
+            }
 
-	        for (int i = 0; i < solve.Count; i++)
-	        {
-	            if (solve[i].Real > 0.0001 && solve[i].Imaginary < 0.0001 && solve[i].Real < min)
-	            {
-	                min = solve[i].Real;
-	            }
-	        }
+            double min = double.PositiveInfinity;
 
-	        return min;
+            for (int i = 0; i < solve.Count; i++)
+            {
+                if (solve[i].Real > 0.0001 && Math.Abs(solve[i].Imaginary) < 0.0001 && solve[i].Real < min)
+                {
+                    min = solve[i].Real;
+                }
+            }
+
+            //var solve1 = RealPolynomialRootFinder.SolveQuartic(coeffs[0], coeffs[1], coeffs[2], coeffs[3], coeffs[4]);
+
+            //for (int i = 0; i < solve1.Length; i++)
+            //{
+            //    if (/*solve1[i] > 0.0001 &&*/ solve1[i] < min)
+            //    {
+            //        min = solve1[i];
+            //    }
+            //}
+
+            return min;
 	    }
 
 

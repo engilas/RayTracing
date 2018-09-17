@@ -1,11 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using MathNet.Numerics;
 
 namespace RayTracing
 {
     static class RealPolynomialRootFinder
     {
+        public static double[] SolveQuartic(double A, double B, double C, double D, double E)
+        {
+            // We need to make sure A isn't too small, for two reasons.  First, we need to avoid division by zero.  Second, small
+            // values of A translate into large errors in the root calculation.  You may wish to play around with this value depending
+            // upon the range of your inputs.
+            if (Math.Abs(A) < 0.1)
+            {
+                if (A == 0) { A = 0.1f; }
+                else { A = Math.Sign(A) * 0.1f; }
+            }
+
+            // We'll use Ferrari's method to solve these roots.
+            double a = -(3 * B * B) / (8 * A * A) + C / A;
+            double b = (B * B * B) / (8 * A * A * A) - (B * C) / (2 * A * A) + D / A;
+            double c = -(3 * B * B * B * B) / (256 * A * A * A * A) + (C * B * B) / (16 * A * A * A) - (B * D) / (4 * A * A) + (E / A);
+
+            // It's worth nothing that there are some special cases that arise during this calculation.  For example, 
+            // if b = 0, then the quartic equation is actually a bi-quadratic equation, and has very simple roots that
+            // are easy to calculate.  However, that situation almost never comes up for us, so creating a case for it
+            // doesn't save any computation time.  We're just going to ignore all special cases and solve the general 
+            // problem.
+            double P = -(a * a) / 12 - c;
+            double Q = -(a * a * a) / 108 + (a * c) / 3 - (b * b) / 8;
+
+            // Now we have to step into Complex arithmetic, because there can be negative bases raised
+            // to powers less than 1 in this equation, resulting in imaginary roots.
+            Complex R = (-Q / 2) + Complex.Sqrt((Q * Q) / 4 + (P * P * P) / 27);
+            Complex U = Complex.Pow(R, 1.0f / 3.0f);
+
+            // This conditional statement is necessary to avoid division-by-zero which will occur if |U| = 0.
+            // You can't divide by zero, even in the complex plane.
+            Complex y;
+            if (Complex.Abs(U) < 0.00001f)
+            {
+                y = -(5f / 6f) * a + U - Complex.Pow(Q, 1.0f / 3.0f);
+            }
+            else
+            {
+                y = -(5f / 6f) * a + U - P / (3 * U);
+            }
+
+            Complex W = Complex.Sqrt(a + 2 * y);
+            double X = -B / (4 * A); // B and A are always real, so X is always real.
+            Complex Y = 3 * a + 2 * y;
+            Complex Z = (2 * b) / W;
+
+            // The four possible roots of the quartic equation are t1, t2, t3, and t4...
+            Complex t1 = (X + (W + Complex.Sqrt(-(Y + Z))) / 2);
+            Complex t2 = (X + (W - Complex.Sqrt(-(Y + Z))) / 2);
+            Complex t3 = (X + (-W + Complex.Sqrt(-(Y - Z))) / 2);
+            Complex t4 = (X + (-W - Complex.Sqrt(-(Y - Z))) / 2);
+
+            // Only add the real roots.
+            List<double> result = new List<double>();
+            if (t1.IsNaN() == false && t1.IsReal() == true) { result.Add(t1.Real); }
+            if (t2.IsNaN() == false && t2.IsReal() == true) { result.Add(t2.Real); }
+            if (t3.IsNaN() == false && t3.IsReal() == true) { result.Add(t3.Real); }
+            if (t4.IsNaN() == false && t4.IsReal() == true) { result.Add(t4.Real); }
+
+            return result.ToArray();
+        }
+
+
         //Global variables that assist the computation, taken from the Visual Studio C++ compiler class float
         // smallest such that 1.0+DBL_EPSILON != 1.0 
         const double DBL_EPSILON = 2.22044604925031E-16;
@@ -303,8 +367,7 @@ namespace RayTracing
                     {
                         temp[i] = K[i];
                     }
-
-
+                    
                     for (int jj = 1; jj <= 20; jj++)
                     {
                         // Quadratic corresponds to a double shift to a non-real point and its
