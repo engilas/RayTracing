@@ -149,14 +149,14 @@ namespace RayTracing {
                 //CameraPos = new Vector(-2, 0, -2),
                 //CameraPos = new Vector(1, 5, 0),
                 //CameraPos = new Vector(5, 0, 0),
-			    CameraPos = new Vector(-10, 2, -10),
+			    CameraPos = new Vector(-10, 10, -10),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
 				RecursionDepth = 0,
-				//CameraRotationX = -90,
+				CameraRotationX = -35,
 			    CameraRotationY = -45
 			};
 
