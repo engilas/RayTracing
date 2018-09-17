@@ -122,7 +122,17 @@ namespace RayTracing {
 
 		    normal = normal.Multiply(1 / normal.Lenght()); //unit vector
 
-            var local_color = Vector.FromColor(closestPrimitive.Color)
+		    Color color = closestPrimitive.Color;
+		    if (closestPrimitive is Plane)
+		    {
+		        var x = (int) Math.Round(O.D1 + D.D1 * closest_t) % 2;
+		        var z = (int) Math.Round(O.D3 + D.D3 * closest_t) % 2;
+                if (x == z)
+                    color = Color.FromRgb(0,0,0);
+
+            }
+
+            var local_color = Vector.FromColor(color)
 				.Multiply(ComputeLighting(P, normal, view, closestPrimitive.Specular));
 
 			var r = closestPrimitive.Reflect;
