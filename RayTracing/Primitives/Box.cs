@@ -17,8 +17,9 @@ namespace RayTracing.Primitives {
 			x,y,z
 		}
 
-		public Vector GetNormal(Vector O, Vector D, double tMin) {
-			//todo: optimize (t value also computes in the render class)
+		public Vector GetNormal(Vector O, Vector D, double tMin)
+		{
+		   //todo: optimize (t value also computes in the render class)
 			D = D.Invert();
 
 			var xlo = D.D1 * (Min.D1 - O.D1);
@@ -38,8 +39,12 @@ namespace RayTracing.Primitives {
 			var tzmin = zlo < zhi
 				? new t {Axis = Axis.z, Value = zlo, Negative = true}
 				: new t {Axis = Axis.z, Value = zhi, Negative = false};
-
-			var min = new[] {txmin, tymin, tzmin}.Where(x => x.Value > tMin).OrderByDescending(x => x.Value).First();
+            
+		    var min = txmin;
+		    if (tymin.Value > min.Value)
+		        min = tymin;
+		    if (tzmin.Value > min.Value)
+		        min = tzmin;
 			
 			switch (min.Axis) {
 				case Axis.x: return new Vector(min.Negative ? -1 : 1, 0, 0);

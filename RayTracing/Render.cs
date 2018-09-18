@@ -112,23 +112,18 @@ namespace RayTracing {
             }
             if (closestPrimitive is Surface surface)
             {
-                if (surface.Torus)
-                {
-                    return Vector.FromColor(Color.FromRgb(255,255,255));
-                }
-
                 normal = surface.GetNormal(O, D, closest_t);
             }
 
 		    normal = normal.Multiply(1 / normal.Lenght()); //unit vector
 
 		    Color color = closestPrimitive.Color;
-		    if (closestPrimitive is Plane)
-		    {
-		        var x = (int) Math.Round(O.D1 + D.D1 * closest_t) % 2;
-		        var z = (int) Math.Round(O.D3 + D.D3 * closest_t) % 2;
+            if (closestPrimitive is Plane)
+            {
+                var x = (int)Math.Round(O.D1 + D.D1 * closest_t) % 2;
+                var z = (int)Math.Round(O.D3 + D.D3 * closest_t) % 2;
                 if (x == z)
-                    color = Color.FromRgb(0,0,0);
+                    color = Color.FromRgb(0, 0, 0);
 
             }
 
@@ -145,63 +140,71 @@ namespace RayTracing {
 			return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
 		}
 
-		private (Primitive, double) ClosestIntersection(Vector O, Vector D, double tMin, double tMax) {
-			var closest_t = double.PositiveInfinity;
-			Primitive closestPrimitive = null;
-			foreach (var sphere in _scene.Spheres) {
-				var (t1, t2) = IntersectRaySphere(O, D, sphere);
-				if (t1 >= tMin && t1 <= tMax && t1 < closest_t) {
-					closest_t = t1;
-					closestPrimitive = sphere;
-				}
-				if (t2 >= tMin && t2 <= tMax && t2 < closest_t) {
-					closest_t = t2;
-					closestPrimitive = sphere;
-				}
-			}
-			foreach (var plane in _scene.Planes) {
-				var t = IntersectRayPlane(O, D, plane);
-				if (t >= tMin && t <= tMax && t < closest_t) {
-					closest_t = t;
-					closestPrimitive = plane;
-				}
-			}
-			var invertDir = D.Invert();
-			foreach (var box in _scene.Boxes) {
-				var t = IntersectRayBox(O, invertDir, box);
-				if (t >= tMin && t <= tMax && t < closest_t) {
-					closest_t = t;
-					closestPrimitive = box;
-				}
-			}
-		    foreach (var surface in _scene.Surfaces)
-		    {
-		        var t = IntersectRayParaboloid(surface, O, D);
-		        if (!double.IsNaN(t))
-		        {
-		            if (t >= tMin && t <= tMax && t < closest_t)
-		            {
-		                closest_t = t;
-		                closestPrimitive = surface;
-		            }
-                }
-            }
-		    {
-		        var t = IntersectRayTorus(O, D);
-		        if (!double.IsNaN(t))
-		        {
-		            if (t >= tMin && t <= tMax && t < closest_t)
-		            {
-		                closest_t = t;
-		                closestPrimitive = new Surface {Torus = true};
-		            }
-		        }
-            }
+	    private (Primitive, double) ClosestIntersection(Vector O, Vector D, double tMin, double tMax)
+	    {
+	        var closest_t = double.PositiveInfinity;
+	        Primitive closestPrimitive = null;
+	        foreach (var sphere in _scene.Spheres)
+	        {
+	            var (t1, t2) = IntersectRaySphere(O, D, sphere);
+	            if (t1 >= tMin && t1 <= tMax && t1 < closest_t)
+	            {
+	                closest_t = t1;
+	                closestPrimitive = sphere;
+	            }
+	            if (t2 >= tMin && t2 <= tMax && t2 < closest_t)
+	            {
+	                closest_t = t2;
+	                closestPrimitive = sphere;
+	            }
+	        }
+	        foreach (var plane in _scene.Planes)
+	        {
+	            var t = IntersectRayPlane(O, D, plane);
+	            if (t >= tMin && t <= tMax && t < closest_t)
+	            {
+	                closest_t = t;
+	                closestPrimitive = plane;
+	            }
+	        }
+	        var invertDir = D.Invert();
+	        foreach (var box in _scene.Boxes)
+	        {
+	            var t = IntersectRayBox(O, invertDir, box);
+	            if (t >= tMin && t <= tMax && t < closest_t)
+	            {
+	                closest_t = t;
+	                closestPrimitive = box;
+	            }
+	        }
+	        foreach (var surface in _scene.Surfaces)
+	        {
+	            var t = IntersectRayParaboloid(surface, O, D);
+	            if (!double.IsNaN(t))
+	            {
+	                if (t >= tMin && t <= tMax && t < closest_t)
+	                {
+	                    closest_t = t;
+	                    closestPrimitive = surface;
+	                }
+	            }
+	        }
+	        {
+	            var t = IntersectRayTorus(O, D);
+	            if (!double.IsNaN(t))
+	            {
+	                if (t >= tMin && t <= tMax && t < closest_t)
+	                {
+	                    closest_t = t;
+	                    closestPrimitive = new Surface {Torus = true, Color = Color.FromRgb(233,150,131), Reflect = 0.5};
+	                }
+	            }
+	        }
 
-			return (closestPrimitive, closest_t);
-		}
+	        return (closestPrimitive, closest_t);
+	    }
 
-		private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
+	    private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere) {
 		    var C = sphere.Center;
 		    var r = sphere.Radius;
 		    var oc = O.Subtract(C);
@@ -333,13 +336,30 @@ namespace RayTracing {
 
 	    private double IntersectRayTorus(Vector O, Vector D)
 	    {
-	        var o = O;
+            var o = O;
 	        var d = D;
 
 	        var r = 0.4d;
 	        var R = 1d;
 
-	        var ox = O.D1;
+            var boxWidth = R + r;
+            var boxHeight = r;
+
+            var box = new Box
+            {
+                Min = new Vector(-boxWidth, -boxHeight, -boxWidth),
+                Max = new Vector(boxWidth, boxHeight, boxWidth)
+            };
+
+            var intersect = IntersectRayBox(O, D.Invert(), box);
+
+            if (double.IsNaN(intersect) || double.IsPositiveInfinity(intersect))
+            {
+                return double.NaN;
+            }
+
+
+            var ox = O.D1;
 	        var oy = O.D2;
 	        var oz = O.D3;
 
@@ -421,11 +441,12 @@ namespace RayTracing {
 					i += light.Intensity;
 				} else {
 					double tMax = 0;
-					if (light.Type == LightType.Point) {
-						L = light.Position.Subtract(point);
-						tMax = 1;
-					}
-					if (light.Type == LightType.Direct) {
+                    if (light.Type == LightType.Point)
+                    {
+                        L = light.Position.Subtract(point);
+                        tMax = 1;
+                    }
+                    if (light.Type == LightType.Direct) {
 						L = light.Direction.Multiply(-1);
 						tMax = double.PositiveInfinity;
 					}
@@ -441,15 +462,16 @@ namespace RayTracing {
 						i += intensity;
 					}
 
-					if (specular == -1) continue;
+                    if (specular == -1) continue;
 
-					var R = ReflectRay(L, normal);
-					var rDotV = R.DotProduct(view);
-					if (rDotV > 0) {
-						var tmp = light.Intensity * Math.Pow(rDotV / (R.Lenght() * view.Lenght()), specular);
-						i += (double) tmp;
-					}
-				}
+                    var R = ReflectRay(L, normal);
+                    var rDotV = R.DotProduct(view);
+                    if (rDotV > 0)
+                    {
+                        var tmp = light.Intensity * Math.Pow(rDotV / (R.Lenght() * view.Lenght()), specular);
+                        i += (double)tmp;
+                    }
+                }
 			}
 			return i;
 		}

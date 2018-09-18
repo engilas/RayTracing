@@ -126,7 +126,7 @@ namespace RayTracing {
                         Max = new Vector(4.5, 3.5, 7),
                         Reflect = 0.2,
                         Specular = 200
-                    }
+                    },
                 },
                 //Surfaces = new List<Surface>
                 //{
@@ -149,15 +149,16 @@ namespace RayTracing {
                 //CameraPos = new Vector(-2, 0, -2),
                 //CameraPos = new Vector(1, 5, 0),
                 //CameraPos = new Vector(5, 0, 0),
-			    CameraPos = new Vector(-10, 10, -10),
+                CameraPos = new Vector(-3, 5, -7),
+			    //CameraPos = new Vector(0, 0, -2.4),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
 				RecursionDepth = 3,
-				CameraRotationX = -35,
-			    CameraRotationY = -45
+				CameraRotationX = -25,
+			    CameraRotationY = -25
 			};
 
 			Console.WriteLine("Started");

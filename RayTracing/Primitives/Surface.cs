@@ -29,6 +29,9 @@ namespace RayTracing.Primitives
 
         public Vector GetNormal(Vector o, Vector d, double t)
         {
+            if (Torus)
+                return TorusNormal(o, d, t);
+
             int dirMultiplier = 1;
             if (Direction == Direction.Down)
             {
@@ -46,6 +49,24 @@ namespace RayTracing.Primitives
             //var y = d.D2 * t + o.D2;
 
             return new Vector(a, -b, c).Multiply(dirMultiplier);
+        }
+
+        private Vector TorusNormal(Vector o, Vector d, double t)
+        {
+            var x = o.D1 + d.D1 * t;
+            var y = o.D2 + d.D2 * t;
+            var z = o.D3 + d.D3 * t;
+
+            var paramSquared = 1 * 1 + 0.4 * 0.4;
+
+            var sumSquared = x * x + y * y + z * z;
+
+            var tmp = new Vector(
+                4.0 * x * (sumSquared - paramSquared),
+                4.0 * y * (sumSquared - paramSquared + 2.0 * 1 * 1),
+                4.0 * z * (sumSquared - paramSquared));
+
+            return tmp;
         }
     }
 }
