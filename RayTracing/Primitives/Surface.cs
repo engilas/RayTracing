@@ -61,6 +61,7 @@ namespace RayTracing.Primitives
 
 	        d = d.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
 	        o = o.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
+	        o = new Vector(o.D1 - 2, o.D2, o.D3);
 
             var x = o.D1 + d.D1 * t;
             var y = o.D2 + d.D2 * t;

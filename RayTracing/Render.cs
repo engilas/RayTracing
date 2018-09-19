@@ -336,6 +336,7 @@ namespace RayTracing {
 
 		    d = d.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
 		    o = o.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
+			o = new Vector(o.D1 - 2, o.D2, o.D3);
 
 		    var r = 0.4d;
 	        var R = 1d;
