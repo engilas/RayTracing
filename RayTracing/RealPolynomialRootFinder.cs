@@ -6,67 +6,67 @@ namespace RayTracing
 {
     static class RealPolynomialRootFinder
     {
-        public static double[] SolveQuartic(double A, double B, double C, double D, double E)
-        {
-            // We need to make sure A isn't too small, for two reasons.  First, we need to avoid division by zero.  Second, small
-            // values of A translate into large errors in the root calculation.  You may wish to play around with this value depending
-            // upon the range of your inputs.
-            if (Math.Abs(A) < 0.1)
-            {
-                if (A == 0) { A = 0.1f; }
-                else { A = Math.Sign(A) * 0.1f; }
-            }
+        //public static double[] SolveQuartic(double A, double B, double C, double D, double E)
+        //{
+        //    // We need to make sure A isn't too small, for two reasons.  First, we need to avoid division by zero.  Second, small
+        //    // values of A translate into large errors in the root calculation.  You may wish to play around with this value depending
+        //    // upon the range of your inputs.
+        //    if (Math.Abs(A) < 0.1)
+        //    {
+        //        if (A == 0) { A = 0.1f; }
+        //        else { A = Math.Sign(A) * 0.1f; }
+        //    }
 
-            // We'll use Ferrari's method to solve these roots.
-            double a = -(3 * B * B) / (8 * A * A) + C / A;
-            double b = (B * B * B) / (8 * A * A * A) - (B * C) / (2 * A * A) + D / A;
-            double c = -(3 * B * B * B * B) / (256 * A * A * A * A) + (C * B * B) / (16 * A * A * A) - (B * D) / (4 * A * A) + (E / A);
+        //    // We'll use Ferrari's method to solve these roots.
+        //    double a = -(3 * B * B) / (8 * A * A) + C / A;
+        //    double b = (B * B * B) / (8 * A * A * A) - (B * C) / (2 * A * A) + D / A;
+        //    double c = -(3 * B * B * B * B) / (256 * A * A * A * A) + (C * B * B) / (16 * A * A * A) - (B * D) / (4 * A * A) + (E / A);
 
-            // It's worth nothing that there are some special cases that arise during this calculation.  For example, 
-            // if b = 0, then the quartic equation is actually a bi-quadratic equation, and has very simple roots that
-            // are easy to calculate.  However, that situation almost never comes up for us, so creating a case for it
-            // doesn't save any computation time.  We're just going to ignore all special cases and solve the general 
-            // problem.
-            double P = -(a * a) / 12 - c;
-            double Q = -(a * a * a) / 108 + (a * c) / 3 - (b * b) / 8;
+        //    // It's worth nothing that there are some special cases that arise during this calculation.  For example, 
+        //    // if b = 0, then the quartic equation is actually a bi-quadratic equation, and has very simple roots that
+        //    // are easy to calculate.  However, that situation almost never comes up for us, so creating a case for it
+        //    // doesn't save any computation time.  We're just going to ignore all special cases and solve the general 
+        //    // problem.
+        //    double P = -(a * a) / 12 - c;
+        //    double Q = -(a * a * a) / 108 + (a * c) / 3 - (b * b) / 8;
 
-            // Now we have to step into Complex arithmetic, because there can be negative bases raised
-            // to powers less than 1 in this equation, resulting in imaginary roots.
-            Complex R = (-Q / 2) + Complex.Sqrt((Q * Q) / 4 + (P * P * P) / 27);
-            Complex U = Complex.Pow(R, 1.0f / 3.0f);
+        //    // Now we have to step into Complex arithmetic, because there can be negative bases raised
+        //    // to powers less than 1 in this equation, resulting in imaginary roots.
+        //    Complex R = (-Q / 2) + Complex.Sqrt((Q * Q) / 4 + (P * P * P) / 27);
+        //    Complex U = Complex.Pow(R, 1.0f / 3.0f);
 
-            // This conditional statement is necessary to avoid division-by-zero which will occur if |U| = 0.
-            // You can't divide by zero, even in the complex plane.
-            Complex y;
-            if (Complex.Abs(U) < 0.00001f)
-            {
-                y = -(5f / 6f) * a + U - Complex.Pow(Q, 1.0f / 3.0f);
-            }
-            else
-            {
-                y = -(5f / 6f) * a + U - P / (3 * U);
-            }
+        //    // This conditional statement is necessary to avoid division-by-zero which will occur if |U| = 0.
+        //    // You can't divide by zero, even in the complex plane.
+        //    Complex y;
+        //    if (Complex.Abs(U) < 0.00001f)
+        //    {
+        //        y = -(5f / 6f) * a + U - Complex.Pow(Q, 1.0f / 3.0f);
+        //    }
+        //    else
+        //    {
+        //        y = -(5f / 6f) * a + U - P / (3 * U);
+        //    }
 
-            Complex W = Complex.Sqrt(a + 2 * y);
-            double X = -B / (4 * A); // B and A are always real, so X is always real.
-            Complex Y = 3 * a + 2 * y;
-            Complex Z = (2 * b) / W;
+        //    Complex W = Complex.Sqrt(a + 2 * y);
+        //    double X = -B / (4 * A); // B and A are always real, so X is always real.
+        //    Complex Y = 3 * a + 2 * y;
+        //    Complex Z = (2 * b) / W;
 
-            // The four possible roots of the quartic equation are t1, t2, t3, and t4...
-            Complex t1 = (X + (W + Complex.Sqrt(-(Y + Z))) / 2);
-            Complex t2 = (X + (W - Complex.Sqrt(-(Y + Z))) / 2);
-            Complex t3 = (X + (-W + Complex.Sqrt(-(Y - Z))) / 2);
-            Complex t4 = (X + (-W - Complex.Sqrt(-(Y - Z))) / 2);
+        //    // The four possible roots of the quartic equation are t1, t2, t3, and t4...
+        //    Complex t1 = (X + (W + Complex.Sqrt(-(Y + Z))) / 2);
+        //    Complex t2 = (X + (W - Complex.Sqrt(-(Y + Z))) / 2);
+        //    Complex t3 = (X + (-W + Complex.Sqrt(-(Y - Z))) / 2);
+        //    Complex t4 = (X + (-W - Complex.Sqrt(-(Y - Z))) / 2);
 
-            // Only add the real roots.
-            List<double> result = new List<double>();
-            if (t1.IsNaN() == false && t1.IsReal() == true) { result.Add(t1.Real); }
-            if (t2.IsNaN() == false && t2.IsReal() == true) { result.Add(t2.Real); }
-            if (t3.IsNaN() == false && t3.IsReal() == true) { result.Add(t3.Real); }
-            if (t4.IsNaN() == false && t4.IsReal() == true) { result.Add(t4.Real); }
+        //    // Only add the real roots.
+        //    List<double> result = new List<double>();
+        //    if (t1.IsNaN() == false && t1.IsReal() == true) { result.Add(t1.Real); }
+        //    if (t2.IsNaN() == false && t2.IsReal() == true) { result.Add(t2.Real); }
+        //    if (t3.IsNaN() == false && t3.IsReal() == true) { result.Add(t3.Real); }
+        //    if (t4.IsNaN() == false && t4.IsReal() == true) { result.Add(t4.Real); }
 
-            return result.ToArray();
-        }
+        //    return result.ToArray();
+        //}
 
 
         //Global variables that assist the computation, taken from the Visual Studio C++ compiler class float
@@ -188,240 +188,200 @@ namespace RayTracing
                     p[i] = op[i];
                 }
 
-                while (N >= 1)
-                {
-                    //Start the algorithm for one zero
-                    if (N <= 2)
-                    {
-                        if (N < 2)
-                        {
-                            //1st degree polynomial
-                            zeror[(Degree) - 1] = -(p[1] / p[0]);
-                            zeroi[(Degree) - 1] = 0.0;
-                        }
-                        else
-                        {
-                            //2nd degree polynomial
-                            Quad_ak1(p[0], p[1], p[2], ref zeror[((Degree) - 2)], ref zeroi[((Degree) - 2)], ref zeror[((Degree) - 1)], ref zeroi[(Degree) - 1]);
-                        }
-                        //Solutions have been calculated, so exit the loop
-                        break; // TODO: might not be correct. Was : Exit While
-                    }
+	            while (N >= 1) {
+		            //Start the algorithm for one zero
+		            if (N <= 2) {
+			            if (N < 2) {
+				            //1st degree polynomial
+				            zeror[(Degree) - 1] = -(p[1] / p[0]);
+				            zeroi[(Degree) - 1] = 0.0;
+			            } else {
+				            //2nd degree polynomial
+				            Quad_ak1(p[0], p[1], p[2], ref zeror[((Degree) - 2)], ref zeroi[((Degree) - 2)],
+					            ref zeror[((Degree) - 1)], ref zeroi[(Degree) - 1]);
+			            }
+			            //Solutions have been calculated, so exit the loop
+			            break; // TODO: might not be correct. Was : Exit While
+		            }
 
-                    moduli_max = 0.0;
-                    moduli_min = DBL_MAX;
+		            moduli_max = 0.0;
+		            moduli_min = DBL_MAX;
 
-                    for (int i = 0; i <= NN - 1; i++)
-                    {
-                        x = Math.Abs(p[i]);
-                        if ((x > moduli_max))
-                            moduli_max = x;
-                        if (((x != 0) & (x < moduli_min)))
-                            moduli_min = x;
-                    }
+		            for (int i = 0; i <= NN - 1; i++) {
+			            x = Math.Abs(p[i]);
+			            if ((x > moduli_max))
+				            moduli_max = x;
+			            if (((x != 0) & (x < moduli_min)))
+				            moduli_min = x;
+		            }
 
-                    // Scale if there are large or very small coefficients
-                    // Computes a scale factor to multiply the coefficients of the polynomial. The scaling
-                    // is done to avoid overflow and to avoid undetected underflow interfering with the
-                    // convergence criterion.
-                    // The factor is a power of the base.
+		            // Scale if there are large or very small coefficients
+		            // Computes a scale factor to multiply the coefficients of the polynomial. The scaling
+		            // is done to avoid overflow and to avoid undetected underflow interfering with the
+		            // convergence criterion.
+		            // The factor is a power of the base.
 
-                    //  Scaling the polynomial
-                    sc = lo / moduli_min;
+		            //  Scaling the polynomial
+		            sc = lo / moduli_min;
 
-                    if ((((sc <= 1.0) & (moduli_max >= 10)) | ((sc > 1.0) & (DBL_MAX / sc >= moduli_max))))
-                    {
-                        if (sc == 0)
-                        {
-                            sc = DBL_MIN;
-                        }
+		            if ((((sc <= 1.0) & (moduli_max >= 10)) | ((sc > 1.0) & (DBL_MAX / sc >= moduli_max)))) {
+			            if (sc == 0) {
+				            sc = DBL_MIN;
+			            }
 
-                        l = Convert.ToInt32(Math.Log(sc) / lb2 + 0.5);
-                        factor = Math.Pow(2.0, l);
-                        if ((factor != 1.0))
-                        {
-                            for (int i = 0; i <= NN; i++)
-                            {
-                                p[i] *= factor;
-                            }
-                        }
-                    }
+			            l = Convert.ToInt32(Math.Log(sc) / lb2 + 0.5);
+			            factor = Math.Pow(2.0, l);
+			            if ((factor != 1.0)) {
+				            for (int i = 0; i <= NN; i++) {
+					            p[i] *= factor;
+				            }
+			            }
+		            }
 
-                    //Compute lower bound on moduli of zeros
-                    for (int i = 0; i <= NN - 1; i++)
-                    {
-                        pt[i] = Math.Abs(p[i]);
-                    }
-                    pt[N] = -(pt[N]);
+		            //Compute lower bound on moduli of zeros
+		            for (int i = 0; i <= NN - 1; i++) {
+			            pt[i] = Math.Abs(p[i]);
+		            }
+		            pt[N] = -(pt[N]);
 
-                    NM1 = N - 1;
+		            NM1 = N - 1;
 
-                    // Compute upper estimate of bound
-                    x = Math.Exp((Math.Log(-pt[N]) - Math.Log(pt[0])) / Convert.ToDouble(N));
+		            // Compute upper estimate of bound
+		            x = Math.Exp((Math.Log(-pt[N]) - Math.Log(pt[0])) / Convert.ToDouble(N));
 
-                    if ((pt[NM1] != 0))
-                    {
-                        // If Newton step at the origin is better, use it
-                        xm = -pt[N] / pt[NM1];
-                        if (xm < x)
-                        {
-                            x = xm;
-                        }
-                    }
+		            if ((pt[NM1] != 0)) {
+			            // If Newton step at the origin is better, use it
+			            xm = -pt[N] / pt[NM1];
+			            if (xm < x) {
+				            x = xm;
+			            }
+		            }
 
-                    // Chop the interval (0, x) until ff <= 0
-                    xm = x;
+		            // Chop the interval (0, x) until ff <= 0
+		            xm = x;
 
-                    do
-                    {
-                        x = xm;
-                        xm = 0.1 * x;
-                        ff = pt[0];
-                        for (int i = 1; i <= NN - 1; i++)
-                        {
-                            ff = ff * xm + pt[i];
-                        }
-                    } while ((ff > 0));
+		            do {
+			            x = xm;
+			            xm = 0.1 * x;
+			            ff = pt[0];
+			            for (int i = 1; i <= NN - 1; i++) {
+				            ff = ff * xm + pt[i];
+			            }
+		            } while ((ff > 0));
 
-                    dx = x;
+		            dx = x;
 
-                    do
-                    {
-                        df = pt[0];
-                        ff = pt[0];
-                        for (int i = 1; i <= N - 1; i++)
-                        {
-                            ff = x * ff + pt[i];
-                            df = x * df + ff;
-                        }
-                        ff = x * ff + pt[N];
-                        dx = ff / df;
-                        x -= dx;
-                    } while ((Math.Abs(dx / x) > 0.005));
+		            do {
+			            df = pt[0];
+			            ff = pt[0];
+			            for (int i = 1; i <= N - 1; i++) {
+				            ff = x * ff + pt[i];
+				            df = x * df + ff;
+			            }
+			            ff = x * ff + pt[N];
+			            dx = ff / df;
+			            x -= dx;
+		            } while ((Math.Abs(dx / x) > 0.005));
 
-                    bnd = x;
+		            bnd = x;
 
-                    // Compute the derivative as the initial K polynomial and do 5 steps with no shift
-                    for (int i = 1; i <= N - 1; i++)
-                    {
-                        K[i] = Convert.ToDouble(N - i) * p[i] / (Convert.ToDouble(N));
-                    }
-                    K[0] = p[0];
+		            // Compute the derivative as the initial K polynomial and do 5 steps with no shift
+		            for (int i = 1; i <= N - 1; i++) {
+			            K[i] = Convert.ToDouble(N - i) * p[i] / (Convert.ToDouble(N));
+		            }
+		            K[0] = p[0];
 
-                    aa = p[N];
-                    bb = p[NM1];
-                    if ((K[NM1] == 0))
-                    {
-                        zerok = 1;
-                    }
-                    else
-                    {
-                        zerok = 0;
-                    }
+		            aa = p[N];
+		            bb = p[NM1];
+		            if ((K[NM1] == 0)) {
+			            zerok = 1;
+		            } else {
+			            zerok = 0;
+		            }
 
-                    for (int jj = 0; jj <= 4; jj++)
-                    {
-                        cc = K[NM1];
-                        if ((zerok == 1))
-                        {
-                            // Use unscaled form of recurrence
-                            for (int i = 0; i <= NM1 - 1; i++)
-                            {
-                                j = NM1 - i;
-                                K[j] = K[j - 1];
-                            }
-                            K[0] = 0;
-                            if ((K[NM1] == 0))
-                            {
-                                zerok = 1;
-                            }
-                            else
-                            {
-                                zerok = 0;
-                            }
-                        }
-                        else
-                        {
-                            // Used scaled form of recurrence if value of K at 0 is nonzero
-                            t = -aa / cc;
-                            for (int i = 0; i <= NM1 - 1; i++)
-                            {
-                                j = NM1 - i;
-                                K[j] = t * K[j - 1] + p[j];
-                            }
-                            K[0] = p[0];
-                            if ((Math.Abs(K[NM1]) <= Math.Abs(bb) * DBL_EPSILON * 10.0))
-                            {
-                                zerok = 1;
-                            }
-                            else
-                            {
-                                zerok = 0;
-                            }
-                        }
-                    }
+		            for (int jj = 0; jj <= 4; jj++) {
+			            cc = K[NM1];
+			            if ((zerok == 1)) {
+				            // Use unscaled form of recurrence
+				            for (int i = 0; i <= NM1 - 1; i++) {
+					            j = NM1 - i;
+					            K[j] = K[j - 1];
+				            }
+				            K[0] = 0;
+				            if ((K[NM1] == 0)) {
+					            zerok = 1;
+				            } else {
+					            zerok = 0;
+				            }
+			            } else {
+				            // Used scaled form of recurrence if value of K at 0 is nonzero
+				            t = -aa / cc;
+				            for (int i = 0; i <= NM1 - 1; i++) {
+					            j = NM1 - i;
+					            K[j] = t * K[j - 1] + p[j];
+				            }
+				            K[0] = p[0];
+				            if ((Math.Abs(K[NM1]) <= Math.Abs(bb) * DBL_EPSILON * 10.0)) {
+					            zerok = 1;
+				            } else {
+					            zerok = 0;
+				            }
+			            }
+		            }
 
-                    // Save K for restarts with new shifts
-                    for (int i = 0; i <= N - 1; i++)
-                    {
-                        temp[i] = K[i];
-                    }
-                    
-                    for (int jj = 1; jj <= 20; jj++)
-                    {
-                        // Quadratic corresponds to a double shift to a non-real point and its
-                        // complex conjugate. The point has modulus BND and amplitude rotated
-                        // by 94 degrees from the previous shift.
+		            // Save K for restarts with new shifts
+		            for (int i = 0; i <= N - 1; i++) {
+			            temp[i] = K[i];
+		            }
 
-                        xxx = -(sinr * yy) + cosr * xx;
-                        yy = sinr * xx + cosr * yy;
-                        xx = xxx;
-                        sr = bnd * xx;
-                        u = -(2.0 * sr);
+		           // for (int jj = 1; jj <= 20; jj++) {
+			            // Quadratic corresponds to a double shift to a non-real point and its
+			            // complex conjugate. The point has modulus BND and amplitude rotated
+			            // by 94 degrees from the previous shift.
 
-                        // Second stage calculation, fixed quadratic
-                        Fxshfr_ak1(20 * jj, ref NZ, sr, bnd, K, N, p, NN, qp, u,
-                        ref lzi, ref lzr, ref szi, ref szr);
+			            xxx = -(sinr * yy) + cosr * xx;
+			            yy = sinr * xx + cosr * yy;
+			            xx = xxx;
+			            sr = bnd * xx;
+			            u = -(2.0 * sr);
+
+			            // Second stage calculation, fixed quadratic
+			            Fxshfr_ak1(20, ref NZ, sr, bnd, K, N, p, NN, qp, u,
+				            ref lzi, ref lzr, ref szi, ref szr);
 
 
-                        if ((NZ != 0))
-                        {
-                            // The second stage jumps directly to one of the third stage iterations and
-                            // returns here if successful. Deflate the polynomial, store the zero or
-                            // zeros, and return to the main algorithm.
+			            if ((NZ != 0)) {
+				            // The second stage jumps directly to one of the third stage iterations and
+				            // returns here if successful. Deflate the polynomial, store the zero or
+				            // zeros, and return to the main algorithm.
 
-                            j = (Degree) - N;
-                            zeror[j] = szr;
-                            zeroi[j] = szi;
-                            NN = NN - NZ;
-                            N = NN - 1;
-                            for (int i = 0; i <= NN - 1; i++)
-                            {
-                                p[i] = qp[i];
-                            }
-                            if ((NZ != 1))
-                            {
-                                zeror[j + 1] = lzr;
-                                zeroi[j + 1] = lzi;
-                            }
+				            j = (Degree) - N;
+				            zeror[j] = szr;
+				            zeroi[j] = szi;
+				            NN = NN - NZ;
+				            N = NN - 1;
+				            for (int i = 0; i <= NN - 1; i++) {
+					            p[i] = qp[i];
+				            }
+				            if ((NZ != 1)) {
+					            zeror[j + 1] = lzr;
+					            zeroi[j + 1] = lzi;
+				            }
 
-                            //Found roots start all calulations again, with a lower order polynomial
-                            break; // TODO: might not be correct. Was : Exit For
-                        }
-                        else
-                        {
-                            // If the iteration is unsuccessful, another quadratic is chosen after restoring K
-                            for (int i = 0; i <= N - 1; i++)
-                            {
-                                K[i] = temp[i];
-                            }
-                        }
-                        if ((jj >= 20))
-                        {
-                            throw new Exception("Failure. No convergence after 20 shifts. Program terminated.");
-                        }
-                    }
-                }
+				            //Found roots start all calulations again, with a lower order polynomial
+				            //break; // TODO: might not be correct. Was : Exit For
+			            } else {
+				            return null;
+				            // If the iteration is unsuccessful, another quadratic is chosen after restoring K
+				            for (int i = 0; i <= N - 1; i++) {
+					            K[i] = temp[i];
+				            }
+			            }
+			            //if ((jj >= 1)) {
+				           // return null;
+			            //}
+		            //}
+	            }
 
             }
             else
@@ -1214,745 +1174,5 @@ namespace RayTracing
         }
 
 
-    }
-
-    static class ComplexPolynomialRootFinder
-    {
-        static double sr;
-        static double si;
-        static double tr;
-        static double ti;
-        static double pvr;
-        static double pvi;
-        static double are;
-        static double mre;
-        static double eta;
-        static double infin;
-
-        static int nn;
-        //Global variables that assist the computation, taken from the Visual Studio C++ compiler class float
-        // smallest such that 1.0+DBL_EPSILON != 1.0 
-        static double DBL_EPSILON = 2.22044604925031E-16;
-        // max value 
-        static double DBL_MAX = 1.79769313486232E+307;
-        // min positive value 
-        static double DBL_MIN = 2.2250738585072E-308;
-        // exponent radix 
-        static double DBL_RADIX = 2;
-
-
-        //If needed, set the maximum allowed degree for the polynomial here:
-
-        static int Max_Degree_Polynomial = 100;
-        //It is done to allocate memory for the computation arrays, so be careful to not set i too high, though in practice it should not be a problem as it is now.
-
-        //static int Degree;
-        // Allocate arrays
-        static double[] pr = new double[Max_Degree_Polynomial + 2];
-        static double[] pi = new double[Max_Degree_Polynomial + 2];
-        static double[] hr = new double[Max_Degree_Polynomial + 2];
-        static double[] hi = new double[Max_Degree_Polynomial + 2];
-        static double[] qpr = new double[Max_Degree_Polynomial + 2];
-        static double[] qpi = new double[Max_Degree_Polynomial + 2];
-        static double[] qhr = new double[Max_Degree_Polynomial + 2];
-        static double[] qhi = new double[Max_Degree_Polynomial + 2];
-        static double[] shr = new double[Max_Degree_Polynomial + 2];
-
-        static double[] shi = new double[Max_Degree_Polynomial + 2];
-        public static List<Complex> FindRoots(params Complex[] Input)
-        {
-
-            List<Complex> result = new List<Complex>();
-
-            int idnn2 = 0;
-            int conv = 0;
-            double xx = 0;
-            double yy = 0;
-            double cosr = 0;
-            double sinr = 0;
-            double smalno = 0;
-            double @base = 0;
-            double xxx = 0;
-            double zr = 0;
-            double zi = 0;
-            double bnd = 0;
-
-            //     const double *opr, const double *opi, int degree, double *zeror, double *zeroi
-            //Helper variable that indicates the maximum length of the polynomial array
-            int Max_Degree_Helper = Max_Degree_Polynomial + 1;
-
-            //Actual degree calculated from the items in the Input ParamArray
-            int Degree = Input.Length - 1;
-
-            //Are the polynomial larger that the maximum allowed?
-            if (Degree > Max_Degree_Polynomial)
-            {
-                throw new Exception("The entered Degree is greater than MAXDEGREE. Exiting root finding algorithm. No further action taken.");
-            }
-
-            double[] opr = new double[Degree + 2];
-            double[] opi = new double[Degree + 2];
-            double[] zeror = new double[Degree + 2];
-            double[] zeroi = new double[Degree + 2];
-
-            for (int i = 0; i <= Input.Length - 1; i++)
-            {
-                opr[i] = Input[i].Real;
-                opi[i] = Input[i].Imaginary;
-            }
-
-            mcon(ref eta, ref infin, ref smalno, ref @base);
-            are = eta;
-            mre = 2.0 * Math.Sqrt(2.0) * eta;
-            xx = 0.70710678;
-            yy = -xx;
-            cosr = -0.060756474;
-            sinr = -0.99756405;
-            nn = Degree;
-
-            // Algorithm fails if the leading coefficient is zero
-            if ((opr[0] == 0 & opi[0] == 0))
-            {
-                throw new Exception("The leading coefficient is zero. No further action taken. Program terminated.");
-            }
-
-
-            // Remove the zeros at the origin if any
-            while ((opr[nn] == 0 & opi[nn] == 0))
-            {
-                idnn2 = Degree - nn;
-                zeror[idnn2] = 0;
-                zeroi[idnn2] = 0;
-                nn -= 1;
-            }
-
-            // Make a copy of the coefficients
-            for (int i = 0; i <= nn; i++)
-            {
-                pr[i] = opr[i];
-                pi[i] = opi[i];
-                shr[i] = cmod(pr[i], pi[i]);
-            }
-
-            // Scale the polynomial
-            bnd = scale(nn, shr, eta, infin, smalno, @base);
-            if ((bnd != 1))
-            {
-                for (int i = 0; i <= nn; i++)
-                {
-                    pr[i] *= bnd;
-                    pi[i] *= bnd;
-                }
-            }
-            search:
-
-            if ((nn <= 1))
-            {
-                cdivid(-pr[1], -pi[1], pr[0], pi[0], ref zeror[Degree - 1], ref zeroi[Degree - 1]);
-
-                for (int i = 0; i <= Degree - 1; i++)
-                {
-                    result.Add(new Complex(zeror[i], zeroi[i]));
-                }
-                return result;
-
-            }
-
-            // Calculate bnd, alower bound on the modulus of the zeros
-            for (int i = 0; i <= nn; i++)
-            {
-                shr[i] = cmod(pr[i], pi[i]);
-            }
-
-            cauchy(nn, shr, shi, ref bnd);
-
-
-            // Outer loop to control 2 Major passes with different sequences of shifts
-            for (int cnt1 = 1; cnt1 <= 2; cnt1++)
-            {
-                // First stage  calculation , no shift
-                noshft(5);
-
-                // Inner loop to select a shift
-                for (int cnt2 = 1; cnt2 <= 9; cnt2++)
-                {
-                    // Shift is chosen with modulus bnd and amplitude rotated by 94 degree from the previous shif
-                    xxx = cosr * xx - sinr * yy;
-                    yy = sinr * xx + cosr * yy;
-                    xx = xxx;
-                    sr = bnd * xx;
-                    si = bnd * yy;
-
-                    // Second stage calculation, fixed shift
-                    fxshft(10 * cnt2, ref zr, ref zi, ref conv);
-                    if ((conv == 1))
-                    {
-                        // The second stage jumps directly to the third stage ieration
-                        // If successful the zero is stored and the polynomial deflated
-                        idnn2 = Degree - nn;
-                        zeror[idnn2] = zr;
-                        zeroi[idnn2] = zi;
-                        nn -= 1;
-                        for (int i = 0; i <= nn; i++)
-                        {
-                            pr[i] = qpr[i];
-                            pi[i] = qpi[i];
-                        }
-
-                        goto search;
-                    }
-                    // If the iteration is unsuccessful another shift is chosen
-                }
-                // if 9 shifts fail, the outer loop is repeated with another sequence of shifts
-            }
-
-            // The zerofinder has failed on two major passes
-            // return empty handed with the number of roots found (less than the original degree)
-            Degree -= nn;
-
-
-            for (int i = 0; i <= Degree - 1; i++)
-            {
-                result.Add(new Complex(zeror[i], zeroi[i]));
-            }
-
-            return result;
-            throw new Exception("The program could not converge to find all the zeroes, but a prelimenary result with the ones that are found is returned.");
-
-        }
-
-
-        // COMPUTES  THE DERIVATIVE  POLYNOMIAL AS THE INITIAL H
-        // POLYNOMIAL AND COMPUTES L1 NO-SHIFT H POLYNOMIALS.
-        //
-        private static void noshft(int l1)
-        {
-            int j = 0;
-            int n = 0;
-            int nm1 = 0;
-            double xni = 0;
-            double t1 = 0;
-            double t2 = 0;
-
-            n = nn;
-            nm1 = n - 1;
-            for (int i = 0; i <= n; i++)
-            {
-                xni = nn - i;
-                hr[i] = xni * pr[i] / n;
-                hi[i] = xni * pi[i] / n;
-            }
-            for (int jj = 1; jj <= l1; jj++)
-            {
-                if ((cmod(hr[n - 1], hi[n - 1]) > eta * 10 * cmod(pr[n - 1], pi[n - 1])))
-                {
-                    cdivid(-pr[nn], -pi[nn], hr[n - 1], hi[n - 1], ref tr, ref ti);
-                    for (int i = 0; i <= nm1 - 1; i++)
-                    {
-                        j = nn - i - 1;
-                        t1 = hr[j - 1];
-                        t2 = hi[j - 1];
-                        hr[j] = tr * t1 - ti * t2 + pr[j];
-                        hi[j] = tr * t2 + ti * t1 + pi[j];
-                    }
-                    hr[0] = pr[0];
-                    hi[0] = pi[0];
-
-                }
-                else
-                {
-                    // If the constant term is essentially zero, shift H coefficients
-                    for (int i = 0; i <= nm1 - 1; i++)
-                    {
-                        j = nn - i - 1;
-                        hr[j] = hr[j - 1];
-                        hi[j] = hi[j - 1];
-                    }
-                    hr[0] = 0;
-                    hi[0] = 0;
-                }
-            }
-        }
-
-        // COMPUTES L2 FIXED-SHIFT H POLYNOMIALS AND TESTS FOR CONVERGENCE.
-        // INITIATES A VARIABLE-SHIFT ITERATION AND RETURNS WITH THE
-        // APPROXIMATE ZERO IF SUCCESSFUL.
-        // L2 - LIMIT OF FIXED SHIFT STEPS
-        // ZR,ZI - APPROXIMATE ZERO IF CONV IS .TRUE.
-        // CONV  - LOGICAL INDICATING CONVERGENCE OF STAGE 3 ITERATION
-        //
-        private static void fxshft(int l2, ref double zr, ref double zi, ref int conv)
-        {
-            int n = 0;
-            int test = 0;
-            int pasd = 0;
-            int bol = 0;
-            double otr = 0;
-            double oti = 0;
-            double svsr = 0;
-            double svsi = 0;
-
-            n = nn;
-            polyev(nn, sr, si, pr, pi, qpr, qpi, ref pvr, ref pvi);
-            test = 1;
-            pasd = 0;
-
-            // Calculate first T = -P(S)/H(S)
-            calct(ref bol);
-
-            // Main loop for second stage
-            for (int j = 1; j <= l2; j++)
-            {
-                otr = tr;
-                oti = ti;
-
-                // Compute the next H Polynomial and new t
-                nexth(bol);
-                calct(ref bol);
-                zr = sr + tr;
-                zi = si + ti;
-
-                // Test for convergence unless stage 3 has failed once or this
-                // is the last H Polynomial
-                if ((!(bol == 1 | !(test == 1) | j == 12)))
-                {
-                    if ((cmod(tr - otr, ti - oti) < 0.5 * cmod(zr, zi)))
-                    {
-
-                        if ((pasd == 1))
-                        {
-                            // The weak convergence test has been passwed twice, start the third stage
-                            // Iteration, after saving the current H polynomial and shift
-                            for (int i = 0; i <= n - 1; i++)
-                            {
-                                shr[i] = hr[i];
-                                shi[i] = hi[i];
-                            }
-                            svsr = sr;
-                            svsi = si;
-                            vrshft(10, ref zr, ref zi, ref conv);
-                            if ((conv == 1))
-                                return;
-
-                            //The iteration failed to converge. Turn off testing and restore h,s,pv and T
-                            test = 0;
-                            for (int i = 0; i <= n - 1; i++)
-                            {
-                                hr[i] = shr[i];
-                                hi[i] = shi[i];
-                            }
-                            sr = svsr;
-                            si = svsi;
-                            polyev(nn, sr, si, pr, pi, qpr, qpi, ref pvr, ref pvi);
-                            calct(ref bol);
-                            continue;
-                        }
-                        pasd = 1;
-                    }
-                }
-                else
-                {
-                    pasd = 0;
-                }
-            }
-
-            // Attempt an iteration with final H polynomial from second stage
-            vrshft(10, ref zr, ref zi, ref conv);
-        }
-
-        // CARRIES OUT THE THIRD STAGE ITERATION.
-        // L3 - LIMIT OF STEPS IN STAGE 3.
-        // ZR,ZI   - ON ENTRY CONTAINS THE INITIAL ITERATE, IF THE
-        //           ITERATION CONVERGES IT CONTAINS THE FINAL ITERATE ON EXIT.
-        // CONV    -  .TRUE. IF ITERATION CONVERGES
-        //
-        private static void vrshft(int l3, ref double zr, ref double zi, ref int conv)
-        {
-            int b = 0;
-            int bol = 0;
-            // Int(i, j)
-
-            double mp = 0;
-            double ms = 0;
-            double omp = 0;
-            double relstp = 0;
-            double r1 = 0;
-            double r2 = 0;
-            double tp = 0;
-
-            conv = 0;
-            b = 0;
-            sr = zr;
-            si = zi;
-
-            // Main loop for stage three
-
-            for (int i = 1; i <= l3; i++)
-            {
-                // Evaluate P at S and test for convergence
-                polyev(nn, sr, si, pr, pi, qpr, qpi, ref pvr, ref pvi);
-                mp = cmod(pvr, pvi);
-                ms = cmod(sr, si);
-                if ((mp <= 20 * errev(nn, qpr, qpi, ms, mp, are, mre)))
-                {
-                    // Polynomial value is smaller in value than a bound onthe error
-                    // in evaluationg P, terminate the ietartion
-                    conv = 1;
-                    zr = sr;
-                    zi = si;
-                    return;
-                }
-                if ((i != 1))
-                {
-
-                    if ((!(b == 1 | mp < omp | relstp >= 0.05)))
-                    {
-                        // Iteration has stalled. Probably a cluster of zeros. Do 5 fixed 
-                        // shift steps into the cluster to force one zero to dominate
-                        tp = relstp;
-                        b = 1;
-                        if ((relstp < eta))
-                            tp = eta;
-                        r1 = Math.Sqrt(tp);
-                        r2 = sr * (1 + r1) - si * r1;
-                        si = sr * r1 + si * (1 + r1);
-                        sr = r2;
-                        polyev(nn, sr, si, pr, pi, qpr, qpi, ref pvr, ref pvi);
-                        for (int j = 1; j <= 5; j++)
-                        {
-                            calct(ref bol);
-                            nexth(bol);
-                        }
-
-                        omp = infin;
-                        goto _20;
-                    }
-
-                    // Exit if polynomial value increase significantly
-                    if ((mp * 0.1 > omp))
-                        return;
-                }
-
-                omp = mp;
-                _20:
-
-                // Calculate next iterate
-                calct(ref bol);
-                nexth(bol);
-                calct(ref bol);
-                if ((!(bol == 1)))
-                {
-                    relstp = cmod(tr, ti) / cmod(sr, si);
-                    sr += tr;
-                    si += ti;
-                }
-            }
-        }
-
-        // COMPUTES  T = -P(S)/H(S).
-        // BOOL   - LOGICAL, SET TRUE IF H(S) IS ESSENTIALLY ZERO.
-        private static void calct(ref int bol)
-        {
-            // Int(n)
-            int n = 0;
-            double hvr = 0;
-            double hvi = 0;
-
-            n = nn;
-
-            // evaluate h(s)
-            polyev(n - 1, sr, si, hr, hi, qhr, qhi, ref hvr, ref hvi);
-
-            if (cmod(hvr, hvi) <= are * 10 * cmod(hr[n - 1], hi[n - 1]))
-            {
-                bol = 1;
-            }
-            else
-            {
-                bol = 0;
-            }
-
-            if ((!(bol == 1)))
-            {
-                cdivid(-pvr, -pvi, hvr, hvi, ref tr, ref ti);
-                return;
-            }
-
-            tr = 0;
-            ti = 0;
-        }
-
-        // CALCULATES THE NEXT SHIFTED H POLYNOMIAL.
-        // BOOL   -  LOGICAL, IF .TRUE. H(S) IS ESSENTIALLY ZERO
-        //
-
-        private static void nexth(int bol)
-        {
-            int n = 0;
-            double t1 = 0;
-            double t2 = 0;
-
-            n = nn;
-            if ((!(bol == 1)))
-            {
-                for (int j = 1; j <= n - 1; j++)
-                {
-                    t1 = qhr[j - 1];
-                    t2 = qhi[j - 1];
-                    hr[j] = tr * t1 - ti * t2 + qpr[j];
-                    hi[j] = tr * t2 + ti * t1 + qpi[j];
-                }
-                hr[0] = qpr[0];
-                hi[0] = qpi[0];
-                return;
-            }
-
-            // If h(s) is zero replace H with qh
-
-            for (int j = 1; j <= n - 1; j++)
-            {
-                hr[j] = qhr[j - 1];
-                hi[j] = qhi[j - 1];
-            }
-            hr[0] = 0;
-            hi[0] = 0;
-        }
-
-        // EVALUATES A POLYNOMIAL  P  AT  S  BY THE HORNER RECURRENCE
-        // PLACING THE PARTIAL SUMS IN Q AND THE COMPUTED VALUE IN PV.
-        //  
-        private static void polyev(int nn, double sr, double si, double[] pr, double[] pi, double[] qr, double[] qi, ref double pvr, ref double pvi)
-        {
-            //{
-            //     Int(i)
-            double t = 0;
-
-            qr[0] = pr[0];
-            qi[0] = pi[0];
-            pvr = qr[0];
-            pvi = qi[0];
-
-            for (int i = 1; i <= nn; i++)
-            {
-                t = (pvr) * sr - (pvi) * si + pr[i];
-                pvi = (pvr) * si + (pvi) * sr + pi[i];
-                pvr = t;
-                qr[i] = pvr;
-                qi[i] = pvi;
-            }
-        }
-
-        // BOUNDS THE ERROR IN EVALUATING THE POLYNOMIAL BY THE HORNER RECURRENCE.
-        // QR,QI - THE PARTIAL SUMS
-        // MS    -MODULUS OF THE POINT
-        // MP    -MODULUS OF POLYNOMIAL VALUE
-        // ARE, MRE -ERROR BOUNDS ON COMPLEX ADDITION AND MULTIPLICATION
-        //
-        private static double errev(int nn, double[] qr, double[] qi, double ms, double mp, double are, double mre)
-        {
-            //{
-            //     Int(i)
-            double e = 0;
-
-            e = cmod(qr[0], qi[0]) * mre / (are + mre);
-            for (int i = 0; i <= nn; i++)
-            {
-                e = e * ms + cmod(qr[i], qi[i]);
-            }
-
-            return e * (are + mre) - mp * mre;
-        }
-
-        // CAUCHY COMPUTES A LOWER BOUND ON THE MODULI OF THE ZEROS OF A
-        // POLYNOMIAL - PT IS THE MODULUS OF THE COEFFICIENTS.
-        //
-        private static void cauchy(int nn, double[] pt, double[] q, ref double fn_val)
-        {
-            int n = 0;
-            double x = 0;
-            double xm = 0;
-            double f = 0;
-            double dx = 0;
-            double df = 0;
-
-            pt[nn] = -pt[nn];
-
-            // Compute upper estimate bound
-            n = nn;
-            x = Math.Exp(Math.Log(-pt[nn]) - Math.Log(pt[0])) / n;
-            if ((pt[n - 1] != 0))
-            {
-                //// Newton step at the origin is better, use it
-                xm = -pt[nn] / pt[n - 1];
-                if ((xm < x))
-                    x = xm;
-            }
-
-            // Chop the interval (0,x) until f < 0
-
-            while ((true))
-            {
-                xm = x * 0.1;
-                f = pt[0];
-                for (int i = 1; i <= nn; i++)
-                {
-                    f = f * xm + pt[i];
-                }
-                if ((f <= 0))
-                    break; // TODO: might not be correct. Was : Exit While
-                x = xm;
-            }
-            dx = x;
-
-            // Do Newton iteration until x converges to two decimal places
-            while ((Math.Abs(dx / x) > 0.005))
-            {
-                q[0] = pt[0];
-                for (int i = 1; i <= nn; i++)
-                {
-                    q[i] = q[i - 1] * x + pt[i];
-                }
-                f = q[nn];
-                df = q[0];
-                for (int i = 1; i <= n - 1; i++)
-                {
-                    df = df * x + q[i];
-                }
-                dx = f / df;
-                x -= dx;
-            }
-
-            fn_val = x;
-        }
-
-        // RETURNS A SCALE FACTOR TO MULTIPLY THE COEFFICIENTS OF THE POLYNOMIAL.
-        // THE SCALING IS DONE TO AVOID OVERFLOW AND TO AVOID UNDETECTED UNDERFLOW
-        // INTERFERING WITH THE CONVERGENCE CRITERION.  THE FACTOR IS A POWER OF THE
-        // BASE.
-        // PT - MODULUS OF COEFFICIENTS OF P
-        // ETA, INFIN, SMALNO, BASE - CONSTANTS DESCRIBING THE FLOATING POINT ARITHMETIC.
-        //
-        private static double scale(int nn, double[] pt, double eta, double infin, double smalno, double @base)
-        {
-            //{
-            //     Int(i, l)
-            int l = 0;
-            double hi = 0;
-            double lo = 0;
-            double max = 0;
-            double min = 0;
-            double x = 0;
-            double sc = 0;
-            double fn_val = 0;
-
-            // Find largest and smallest moduli of coefficients
-            hi = Math.Sqrt(infin);
-            lo = smalno / eta;
-            max = 0;
-            min = infin;
-
-            for (int i = 0; i <= nn; i++)
-            {
-                x = pt[i];
-                if ((x > max))
-                    max = x;
-                if ((x != 0 & x < min))
-                    min = x;
-            }
-
-            // Scale only if there are very large or very small components
-            fn_val = 1;
-            if ((min >= lo & max <= hi))
-                return fn_val;
-            x = lo / min;
-            if ((x <= 1))
-            {
-                sc = 1 / (Math.Sqrt(max) * Math.Sqrt(min));
-            }
-            else
-            {
-                sc = x;
-                if ((infin / sc > max))
-                    sc = 1;
-            }
-            l = Convert.ToInt32(Math.Log(sc) / Math.Log(@base) + 0.5);
-            fn_val = Math.Pow(@base, l);
-            return fn_val;
-        }
-
-        // COMPLEX DIVISION C = A/B, AVOIDING OVERFLOW.
-        //
-        private static void cdivid(double ar, double ai, double br, double bi, ref double cr, ref double ci)
-        {
-            double r = 0;
-            double d = 0;
-            double t = 0;
-            double infin = 0;
-
-            if ((br == 0 & bi == 0))
-            {
-                // Division by zero, c = infinity
-                mcon(ref t, ref infin, ref t, ref t);
-                cr = infin;
-                ci = infin;
-                return;
-            }
-
-            if ((Math.Abs(br) < Math.Abs(bi)))
-            {
-                r = br / bi;
-                d = bi + r * br;
-                cr = (ar * r + ai) / d;
-                ci = (ai * r - ar) / d;
-                return;
-            }
-
-            r = bi / br;
-            d = br + r * bi;
-            cr = (ar + ai * r) / d;
-            ci = (ai - ar * r) / d;
-        }
-
-        // MODULUS OF A COMPLEX NUMBER AVOIDING OVERFLOW.
-        //
-        private static double cmod(double r, double i)
-        {
-            double ar = 0;
-            double ai = 0;
-
-            ar = Math.Abs(r);
-            ai = Math.Abs(i);
-            if ((ar < ai))
-            {
-                return ai * Math.Sqrt(1.0 + Math.Pow((ar / ai), 2.0));
-
-            }
-            else if ((ar > ai))
-            {
-                return ar * Math.Sqrt(1.0 + Math.Pow((ai / ar), 2.0));
-            }
-            else
-            {
-                return ar * Math.Sqrt(2.0);
-            }
-        }
-        // MCON PROVIDES MACHINE CONSTANTS USED IN VARIOUS PARTS OF THE PROGRAM.
-        // THE USER MAY EITHER SET THEM DIRECTLY OR USE THE STATEMENTS BELOW TO
-        // COMPUTE THEM. THE MEANING OF THE FOUR CONSTANTS ARE -
-        // ETA       THE MAXIMUM RELATIVE REPRESENTATION ERROR WHICH CAN BE DESCRIBED
-        //           AS THE SMALLEST POSITIVE FLOATING-POINT NUMBER SUCH THAT
-        //           1.0_dp + ETA > 1.0.
-        // INFINY    THE LARGEST FLOATING-POINT NUMBER
-        // SMALNO    THE SMALLEST POSITIVE FLOATING-POINT NUMBER
-        // BASE      THE BASE OF THE FLOATING-POINT NUMBER SYSTEM USED
-        //
-
-        private static void mcon(ref double eta, ref double infiny, ref double smalno, ref double @base)
-        {
-            @base = DBL_RADIX;
-            eta = DBL_EPSILON;
-            infiny = DBL_MAX;
-            smalno = DBL_MIN;
-        }
     }
 }

@@ -258,6 +258,12 @@ namespace RayTracing {
 	        var o = O;
 	        var d = D;
 
+		    var rotation = new RotationMatrix(45, 0, 0);
+
+		    d = d.MultiplyMatrix(rotation.X);
+		    d = d.MultiplyMatrix(rotation.Y);
+		    d = d.MultiplyMatrix(rotation.Z);
+
 	        if (paraboloid.Offset != null)
 	        {
 	            o = new Vector(o.D1 - paraboloid.Offset.D1, o.D2 - paraboloid.Offset.D2, o.D3 - paraboloid.Offset.D3);
@@ -286,14 +292,7 @@ namespace RayTracing {
 	        }
 	        
             var width = paraboloid.Width;
-
-            //x^2+y^2+wz=0
-            //var p1 = dirMultiplier * 1 / (2 * (Pow2(d.D1) + Pow2(d.D2)));
-            //var p2 = dirMultiplier * (-2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) + width * d.D3;
-            //var p3 = Math.Sqrt(Pow2(dirMultiplier * (2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) - width * d.D3) -
-            //                   4 * (dirMultiplier * (Pow2(d.D1) + Pow2(d.D2))) *
-            //                   (dirMultiplier * (Pow2(o.D1) + Pow2(o.D2)) - width * o.D3));//cache this line
-
+			
 	        var p1 = 1 / (2 * (Pow2(d.D1) - Pow2(d.D2)));
 	        var p2 = (-2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) + width * d.D3;
 	        var p3 = Math.Sqrt(Pow2((2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) - width * d.D3) -
@@ -337,7 +336,11 @@ namespace RayTracing {
 	    private double IntersectRayTorus(Vector O, Vector D)
 	    {
             var o = O;
-	        var d = D;
+			var d = D;
+
+			var rotation = new RotationMatrix(45, 0, 0);
+
+		    d = d.MultiplyMatrix(rotation.X);
 
 	        var r = 0.4d;
 	        var R = 1d;
@@ -351,7 +354,7 @@ namespace RayTracing {
                 Max = new Vector(boxWidth, boxHeight, boxWidth)
             };
 
-            var intersect = IntersectRayBox(O, D.Invert(), box);
+            var intersect = IntersectRayBox(o, d.Invert(), box);
 
             if (double.IsNaN(intersect) || double.IsPositiveInfinity(intersect))
             {
@@ -359,79 +362,51 @@ namespace RayTracing {
             }
 
 
-            var ox = O.D1;
-	        var oy = O.D2;
-	        var oz = O.D3;
+            var ox = o.D1;
+	        var oy = o.D2;
+	        var oz = o.D3;
 
-	        var dx = D.D1;
-	        var dy = D.D2;
-	        var dz = D.D3;
+	        var dx = d.D1;
+	        var dy = d.D2;
+	        var dz = d.D3;
+
+		    var rPow2 = r * r;
+		    var RPow2 = R * R;
+		    var dyPow2 = dy * dy;
+		    var oyPow2 = oy * oy;
 
 	        // define the coefficients of the quartic equation
-	        var sum_d_sqrd = dx * dx + dy * dy + dz * dz;
-	        var e = ox * ox + oy * oy + oz * oz -
-	                R * R - r * r;
+	        var sum_d_sqrd = dx * dx + dyPow2 + dz * dz;
+	        var e = ox * ox + oyPow2 + oz * oz -
+	                RPow2 - rPow2;
 	        var f = ox * dx + oy * dy + oz * dz;
-	        var four_a_sqrd = 4.0 * R * R;
+	        var four_a_sqrd = 4.0 * RPow2;
 
 	        var coeffs = new [] {
-	            e * e - four_a_sqrd * (r * r - oy * oy),
-	            4.0 * f * e + 2.0 * four_a_sqrd * oy * dy,
-	            2.0 * sum_d_sqrd * e + 4.0 * f * f + four_a_sqrd * dy * dy,
-	            4.0 * sum_d_sqrd * f,
-	            sum_d_sqrd* sum_d_sqrd
-	        }.Reverse().ToArray();
+	            sum_d_sqrd* sum_d_sqrd,
+		        4.0 * sum_d_sqrd * f,
+		        2.0 * sum_d_sqrd * e + 4.0 * f * f + four_a_sqrd * dyPow2,
+		        4.0 * f * e + 2.0 * four_a_sqrd * oy * dy,
+		        e * e - four_a_sqrd * (rPow2 - oyPow2),
+	        };
 
-            List<Complex> solve = new List<Complex>();
-
-            try
-            {
-                solve = RealPolynomialRootFinder.FindRoots(coeffs);
-            }
-            catch
-            {
-                return double.PositiveInfinity;
-            }
+            var solve = RealPolynomialRootFinder.FindRoots(coeffs);
+		    if (solve == null)
+			    return double.PositiveInfinity;
 
             double min = double.PositiveInfinity;
 
             for (int i = 0; i < solve.Count; i++)
             {
-                if (solve[i].Real > 0.0001 && Math.Abs(solve[i].Imaginary) < 0.0001 && solve[i].Real < min)
+                if (solve[i].IsReal() && solve[i].Real > 0 && solve[i].Real < min)
                 {
                     min = solve[i].Real;
                 }
             }
 
-            //var solve1 = RealPolynomialRootFinder.SolveQuartic(coeffs[0], coeffs[1], coeffs[2], coeffs[3], coeffs[4]);
-
-            //for (int i = 0; i < solve1.Length; i++)
-            //{
-            //    if (/*solve1[i] > 0.0001 &&*/ solve1[i] < min)
-            //    {
-            //        min = solve1[i];
-            //    }
-            //}
-
             return min;
 	    }
 
-
-
-        /*
-  (p1                 )    (p2                    )   (p3     )  (p4                                                                       )   (p5           
- -(d1*o1 + d2*o2 + d3*o3 + (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 - 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 - 2*R*d2^2 + 
- 
-                                                  )   (p6    )          (p7               )         
-   2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 - 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
-
- -(d1*o1 + d2*o2 + d3*o3 + (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 + 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 + 2*R*d2^2 + 2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 + 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
-
- -(d1*o1 + d2*o2 + d3*o3 - (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 - 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 - 2*R*d2^2 + 2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 - 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
-
- -(d1*o1 + d2*o2 + d3*o3 - (- d1^2*o2^2 - d1^2*o3^2 + d1^2*r^2 + 2*R*d1^2 + 2*d1*d2*o1*o2 + 2*d1*d3*o1*o3 - d2^2*o1^2 - d2^2*o3^2 + d2^2*r^2 + 2*R*d2^2 + 2*d2*d3*o2*o3 - d3^2*o1^2 - d3^2*o2^2 + d3^2*r^2 + 2*R*d3^2)^(1/2))/(d1^2 + d2^2 + d3^2)
-
-        */
 
         private double ComputeLighting(Vector point, Vector normal, Vector view, int specular) {
 			var i = 0.0;

@@ -53,6 +53,10 @@ namespace RayTracing.Primitives
 
         private Vector TorusNormal(Vector o, Vector d, double t)
         {
+	        //var rotation = new RotationMatrix(45, 0, 0);
+
+	        //d = d.MultiplyMatrix(rotation.X);
+
             var x = o.D1 + d.D1 * t;
             var y = o.D2 + d.D2 * t;
             var z = o.D3 + d.D3 * t;

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Media;
-using RayTracing.Models;
 using RayTracing.Primitives;
 using RayTracing.Properties;
+using Vector = RayTracing.Models.Vector;
 
 namespace RayTracing {
 	public class MainViewModel : INotifyPropertyChanged {
@@ -128,20 +129,20 @@ namespace RayTracing {
                         Specular = 200
                     },
                 },
-                //Surfaces = new List<Surface>
-                //{
-                //    new Surface
-                //    {
-                //        Color = Color.FromRgb(255, 0, 235),
-                //        Reflect = 0.2,
-                //        Specular = 200,
-                //        AxisDirection = Axis.Y,
-                //        //Direction = Direction.Down,
-                //        Width = 1,
-                //        //Edge = 4,
-                //        Offset = new Vector(0, 2, 10)
-                //    }
-                //}
+                Surfaces = new List<Surface>
+                {
+                    new Surface
+                    {
+                        Color = Color.FromRgb(255, 0, 235),
+                        Reflect = 0.2,
+                        Specular = 200,
+                        AxisDirection = Axis.Y,
+                        //Direction = Direction.Down,
+                        Width = 1,
+                        //Edge = 4,
+                        Offset = new Vector(0, 2, 10)
+                    }
+                }
             };
 
 			var options = new RenderOptions {
@@ -149,7 +150,7 @@ namespace RayTracing {
                 //CameraPos = new Vector(-2, 0, -2),
                 //CameraPos = new Vector(1, 5, 0),
                 //CameraPos = new Vector(5, 0, 0),
-                CameraPos = new Vector(-3, 5, -7),
+                CameraPos = new Vector(-13, 15, -17),
 			    //CameraPos = new Vector(0, 0, -2.4),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
@@ -169,6 +170,10 @@ namespace RayTracing {
 
 			ProcessRender(render);
 
+
+			Width = 0;Height = 0;
+			
+
 		}
 
 		void ProcessRender(Render render) {
@@ -179,7 +184,8 @@ namespace RayTracing {
 
 			sw.Stop();
 
-			Console.WriteLine($@"Rendered in {sw.Elapsed} ms");
+            Console.WriteLine($@"Rendered in {sw.Elapsed} ms");
+			MessageBox.Show($@"Rendered in {sw.Elapsed} ms");
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
