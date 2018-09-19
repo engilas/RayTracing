@@ -31,8 +31,8 @@ namespace RayTracing.Primitives
         {
             if (Torus)
                 return TorusNormal(o, d, t);
-
-            int dirMultiplier = 1;
+	        
+	        int dirMultiplier = 1;
             if (Direction == Direction.Down)
             {
                 dirMultiplier = -1;
@@ -56,6 +56,11 @@ namespace RayTracing.Primitives
 	        //var rotation = new RotationMatrix(45, 0, 0);
 
 	        //d = d.MultiplyMatrix(rotation.X);
+
+	        var rotation = new RotationMatrix(0, 90, 0);
+
+	        d = d.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
+	        o = o.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
 
             var x = o.D1 + d.D1 * t;
             var y = o.D2 + d.D2 * t;

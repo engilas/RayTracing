@@ -258,12 +258,6 @@ namespace RayTracing {
 	        var o = O;
 	        var d = D;
 
-		    var rotation = new RotationMatrix(45, 0, 0);
-
-		    d = d.MultiplyMatrix(rotation.X);
-		    d = d.MultiplyMatrix(rotation.Y);
-		    d = d.MultiplyMatrix(rotation.Z);
-
 	        if (paraboloid.Offset != null)
 	        {
 	            o = new Vector(o.D1 - paraboloid.Offset.D1, o.D2 - paraboloid.Offset.D2, o.D3 - paraboloid.Offset.D3);
@@ -338,11 +332,12 @@ namespace RayTracing {
             var o = O;
 			var d = D;
 
-			var rotation = new RotationMatrix(45, 0, 0);
+		    var rotation = new RotationMatrix(90, 0, 0);
 
-		    d = d.MultiplyMatrix(rotation.X);
+		    d = d.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
+		    o = o.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
 
-	        var r = 0.4d;
+		    var r = 0.4d;
 	        var R = 1d;
 
             var boxWidth = R + r;
@@ -360,7 +355,6 @@ namespace RayTracing {
             {
                 return double.NaN;
             }
-
 
             var ox = o.D1;
 	        var oy = o.D2;
@@ -398,7 +392,7 @@ namespace RayTracing {
 
             for (int i = 0; i < solve.Count; i++)
             {
-                if (solve[i].IsReal() && solve[i].Real > 0 && solve[i].Real < min)
+                if (solve[i].IsReal() && solve[i].Real >  0.0001 && solve[i].Real < min)
                 {
                     min = solve[i].Real;
                 }
