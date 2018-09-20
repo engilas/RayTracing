@@ -42,9 +42,7 @@ namespace RayTracing {
 
 		            var D = CanvasToViewport(x, y);
 
-		            D = D.MultiplyMatrix(rotationMtx.X);
-		            D = D.MultiplyMatrix(rotationMtx.Y);
-		            D = D.MultiplyMatrix(rotationMtx.Z);
+			        D = D.MultiplyMatrix(rotationMtx.Rotation);
 
 		            var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
 
@@ -114,6 +112,9 @@ namespace RayTracing {
             {
                 normal = surface.GetNormal(O, D, closest_t);
             }
+			if (closestPrimitive is Torus torus) {
+				normal = torus.GetNormal(O, D, closest_t);
+			}
 
 		    normal = normal.Multiply(1 / normal.Lenght()); //unit vector
 
@@ -189,17 +190,17 @@ namespace RayTracing {
 	                }
 	            }
 	        }
-	        {
-	            var t = IntersectRayTorus(O, D);
-	            if (!double.IsNaN(t))
-	            {
-	                if (t >= tMin && t <= tMax && t < closest_t)
-	                {
-	                    closest_t = t;
-	                    closestPrimitive = new Surface {Torus = true, Color = Color.FromRgb(233,150,131), Reflect = 0.5};
-	                }
-	            }
-	        }
+		    foreach (var torus in _scene.Toruses) {
+			    var t = IntersectRayTorus(torus, O, D);
+			    if (!double.IsNaN(t))
+			    {
+				    if (t >= tMin && t <= tMax && t < closest_t)
+				    {
+					    closest_t = t;
+					    closestPrimitive = torus;
+				    }
+			    }
+		    }
 
 	        return (closestPrimitive, closest_t);
 	    }
@@ -327,32 +328,24 @@ namespace RayTracing {
             return val * val;
         }
 
-	    private double IntersectRayTorus(Vector O, Vector D)
+	    private double IntersectRayTorus(Torus torus, Vector O, Vector D)
 	    {
             var o = O;
 			var d = D;
 
-		    var rotation = new RotationMatrix(90, 0, 0);
+		    var r = torus.TubeRadius;
+		    var R = torus.SweptRadius;
 
-		    d = d.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
-		    o = o.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
-			o = new Vector(o.D1 - 2, o.D2, o.D3);
+		    o = new Vector(o.D1 - torus.Position.D1, o.D2 - torus.Position.D2, o.D3 - torus.Position.D3);
 
-		    var r = 0.4d;
-	        var R = 1d;
+		    if (torus.Rotation != null) {
+				d = d.MultiplyMatrix(torus.Rotation.Rotation);
+			    o = o.MultiplyMatrix(torus.Rotation.Rotation);
+		    }
 
-            var boxWidth = R + r;
-            var boxHeight = r;
+			var intersectBox = IntersectRayBox(o, d.Invert(), torus.AroundBox);
 
-            var box = new Box
-            {
-                Min = new Vector(-boxWidth, -boxHeight, -boxWidth),
-                Max = new Vector(boxWidth, boxHeight, boxWidth)
-            };
-
-            var intersect = IntersectRayBox(o, d.Invert(), box);
-
-            if (double.IsNaN(intersect) || double.IsPositiveInfinity(intersect))
+            if (double.IsNaN(intersectBox) || double.IsPositiveInfinity(intersectBox))
             {
                 return double.NaN;
             }
@@ -393,7 +386,7 @@ namespace RayTracing {
 
             for (int i = 0; i < solve.Count; i++)
             {
-                if (solve[i].IsReal() && solve[i].Real >  0.0001 && solve[i].Real < min)
+                if (solve[i].IsReal() && solve[i].Real > 0.0001 && solve[i].Real < min)
                 {
                     min = solve[i].Real;
                 }

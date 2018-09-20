@@ -60,13 +60,13 @@ namespace RayTracing {
                         Specular = 500,
                         Reflect = 0.3
                     },
-                    new Sphere {
-                        Center = new Vector(-2, 0, 6),
-                        Radius = 1,
-                        Color = Color.FromRgb(0, 255, 0),
-                        Specular = 10,
-                        Reflect = 0.4
-                    },
+                    //new Sphere {
+                    //    Center = new Vector(-2, 0, 6),
+                    //    Radius = 1,
+                    //    Color = Color.FromRgb(0, 255, 0),
+                    //    Specular = 10,
+                    //    Reflect = 0.4
+                    //},
                     //new Sphere {
                     //    Center = new Vector(0.7, 1.8, 1.7),
                     //    Radius = 0.6,
@@ -129,6 +129,14 @@ namespace RayTracing {
                         Specular = 200
                     },
                 },
+                Toruses = {
+                    new Torus(0.4, 1) {
+                        Position = new Vector(-2, 0, 6),
+                        Rotation = new RotationMatrix(0, 0, 90),
+                        Color = Colors.GreenYellow,
+                        Reflect = 0.7
+                    }
+                }
                 //Surfaces = new List<Surface>
                 //{
                 //    new Surface
@@ -150,16 +158,18 @@ namespace RayTracing {
                 //CameraPos = new Vector(-2, 0, -2),
                 //CameraPos = new Vector(1, 5, 0),
                 //CameraPos = new Vector(5, 0, 0),
-                CameraPos = new Vector(-3, 5, -7),
+                //CameraPos = new Vector(1.75, 0.5, 4),
 			    //CameraPos = new Vector(0, 0, -2.4),
+				CameraPos = new Vector(-2, 0, 0),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
-				RecursionDepth = 3,
-				CameraRotationX = -25,
-			    CameraRotationY = -25
+				RecursionDepth = 2,
+				//CameraRotationZ = -45,
+				//CameraRotationX = 45,
+				//CameraRotationY = 90
 			};
 
 			Console.WriteLine("Started");

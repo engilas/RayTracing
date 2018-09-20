@@ -23,15 +23,10 @@ namespace RayTracing.Primitives
         public double Edge { get; set; }
         public Vector Offset { get; set; }
 
-        public bool Torus { get; set; }
-
         public Direction Direction { get; set; }
 
         public Vector GetNormal(Vector o, Vector d, double t)
         {
-            if (Torus)
-                return TorusNormal(o, d, t);
-	        
 	        int dirMultiplier = 1;
             if (Direction == Direction.Down)
             {
@@ -49,34 +44,6 @@ namespace RayTracing.Primitives
             //var y = d.D2 * t + o.D2;
 
             return new Vector(a, -b, c).Multiply(dirMultiplier);
-        }
-
-        private Vector TorusNormal(Vector o, Vector d, double t)
-        {
-	        //var rotation = new RotationMatrix(45, 0, 0);
-
-	        //d = d.MultiplyMatrix(rotation.X);
-
-	        var rotation = new RotationMatrix(0, 90, 0);
-
-	        d = d.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
-	        o = o.MultiplyMatrix(rotation.X).MultiplyMatrix(rotation.Y).MultiplyMatrix(rotation.Z);
-	        o = new Vector(o.D1 - 2, o.D2, o.D3);
-
-            var x = o.D1 + d.D1 * t;
-            var y = o.D2 + d.D2 * t;
-            var z = o.D3 + d.D3 * t;
-
-            var paramSquared = 1 * 1 + 0.4 * 0.4;
-
-            var sumSquared = x * x + y * y + z * z;
-
-            var tmp = new Vector(
-                4.0 * x * (sumSquared - paramSquared),
-                4.0 * y * (sumSquared - paramSquared + 2.0 * 1 * 1),
-                4.0 * z * (sumSquared - paramSquared));
-
-            return tmp;
         }
     }
 }

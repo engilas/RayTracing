@@ -334,19 +334,20 @@ namespace RayTracing
 			            temp[i] = K[i];
 		            }
 
-		           // for (int jj = 1; jj <= 20; jj++) {
-			            // Quadratic corresponds to a double shift to a non-real point and its
-			            // complex conjugate. The point has modulus BND and amplitude rotated
-			            // by 94 degrees from the previous shift.
+                    for (int jj = 1; jj <= 20; jj++)
+                    {
+                        // Quadratic corresponds to a double shift to a non-real point and its
+                        // complex conjugate. The point has modulus BND and amplitude rotated
+                        // by 94 degrees from the previous shift.
 
-			            xxx = -(sinr * yy) + cosr * xx;
+                        xxx = -(sinr * yy) + cosr * xx;
 			            yy = sinr * xx + cosr * yy;
 			            xx = xxx;
 			            sr = bnd * xx;
 			            u = -(2.0 * sr);
 
 			            // Second stage calculation, fixed quadratic
-			            Fxshfr_ak1(20, ref NZ, sr, bnd, K, N, p, NN, qp, u,
+			            Fxshfr_ak1(20 * jj, ref NZ, sr, bnd, K, N, p, NN, qp, u,
 				            ref lzi, ref lzr, ref szi, ref szr);
 
 
@@ -369,24 +370,25 @@ namespace RayTracing
 				            }
 
 				            //Found roots start all calulations again, with a lower order polynomial
-				            //break; // TODO: might not be correct. Was : Exit For
+				            break; // TODO: might not be correct. Was : Exit For
 			            } else {
-				            return null;
 				            // If the iteration is unsuccessful, another quadratic is chosen after restoring K
 				            for (int i = 0; i <= N - 1; i++) {
 					            K[i] = temp[i];
 				            }
 			            }
-			            //if ((jj >= 1)) {
-				           // return null;
-			            //}
-		            //}
-	            }
-
+                    if ((jj >= 20))
+                    {
+                        return null;
+                    }
+                }
             }
+
+        }
             else
             {
                 throw new Exception("The leading coefficient is zero. No further action taken. Program terminated.");
+	            //return null;
             }
 
             for (int i = 0; i <= Degree - 1; i++)

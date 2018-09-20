@@ -68,6 +68,7 @@
     <Compile Include="Primitives\Plane.cs" />
     <Compile Include="Primitives\Sphere.cs" />
     <Compile Include="Primitives\Surface.cs" />
+    <Compile Include="Primitives\Torus.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="RealPolynomialRootFinder.cs" />
     <Compile Include="Render.cs" />
