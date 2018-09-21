@@ -16,8 +16,9 @@ namespace RayTracing.Primitives
 
     public enum Direction { Up, Down }
 
-    class Surface : Primitive
-    {
+    class Surface : Primitive {
+	    public double A, B, C, D, E, F;
+
         public Axis AxisDirection { get; set; }
         public double Width { get; set; }
         public double Edge { get; set; }

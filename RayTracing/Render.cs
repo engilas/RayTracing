@@ -177,7 +177,7 @@ namespace RayTracing {
 	        }
 	        foreach (var surface in _scene.Surfaces)
 	        {
-	            var t = IntersectRayParaboloid(surface, O, D);
+	            var t = IntersectRaySurface(surface, O, D);
 	            if (!double.IsNaN(t))
 	            {
 	                if (t >= tMin && t <= tMax && t < closest_t)
@@ -251,72 +251,96 @@ namespace RayTracing {
 				return double.PositiveInfinity;
 		}
 
-	    private double IntersectRayParaboloid(Surface paraboloid, Vector O, Vector D)
-	    {
-	        var o = O;
-	        var d = D;
+	    private double IntersectRaySurface(Surface surface, Vector O, Vector D) {
+		    var a = surface.A;
+		    var b = surface.B;
+		    var c = surface.C;
+		    var d = surface.D;
+		    var e = surface.E;
+		    var f = surface.F;
 
-	        if (paraboloid.Offset != null)
-	        {
-	            o = new Vector(o.D1 - paraboloid.Offset.D1, o.D2 - paraboloid.Offset.D2, o.D3 - paraboloid.Offset.D3);
-	        }
+		    var d1 = D.D1;
+		    var d2 = D.D2;
+		    var d3 = D.D3;
+		    var o1 = O.D1;
+		    var o2 = O.D2;
+		    var o3 = O.D3;
 
-            if (paraboloid.AxisDirection == Axis.Z)
-	        {
-	            o = new Vector(o.D1, o.D2, o.D3);
-	            d = new Vector(d.D1, d.D2, d.D3);
-            }
-            else if (paraboloid.AxisDirection == Axis.Y)
-	        {
-	            o = new Vector(o.D1, o.D3, o.D2);
-                d = new Vector(d.D1, d.D3, d.D2);
-	        }
-	        else if (paraboloid.AxisDirection == Axis.X)
-	        {
-	            o = new Vector(o.D3, o.D2, o.D1);
-	            d = new Vector(d.D3, d.D2, d.D1);
-	        } else throw new Exception($"Unknown direction {paraboloid.AxisDirection}");
+		    var p1 = -2 * a * d1 * o1 - 2 * b * d2 * o2 - 2 * c * d3 * o3 - d * d3 - d2 * e;
+		    var p2 = Math.Sqrt((2 * a * d1 * o1 + 2 * b * d2 * o2 + 2 * c * d3 * o3 + d * d3 + d2 * e).Pow2()
+		                       - 4 * (a * d1.Pow2() + b * d2.Pow2() + c * d3.Pow2()) *
+		                       (a * o1.Pow2() + b * o2.Pow2() + c * o3.Pow2() + d * o3 + e * o2 + f));
+		    var p3 = 2 * (a * d1.Pow2() + b * d2.Pow2() + c * d3.Pow2());
 
-	        int dirMultiplier = 1;
-	        if (paraboloid.Direction == Direction.Down)
-	        {
-	            dirMultiplier = -1;
-	        }
-	        
-            var width = paraboloid.Width;
-			
-	        var p1 = 1 / (2 * (Pow2(d.D1) - Pow2(d.D2)));
-	        var p2 = (-2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) + width * d.D3;
-	        var p3 = Math.Sqrt(Pow2((2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) - width * d.D3) -
-	                           4 * ((Pow2(d.D1) - Pow2(d.D2))) *
-	                           ((Pow2(o.D1) - Pow2(o.D2)) - width * o.D3));//cache this line
+		    var t1 = (p1 - p2) / p3;
+		    var t2 = (p1 + p2) / p3;
 
-            var t1 = p1 * (p2 - p3);
-            var t2 = p1 * (p2 + p3);
+		    return Math.Min(t1, t2);
 
-            //edge by direction
-            var tMin = Math.Min(t1, t2);
-	        var tMax = Math.Max(t1, t2);
-	        if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D3 * tMin + o.D3)) > paraboloid.Edge)
-	        {
-	            if (Math.Abs(dirMultiplier * (d.D3 * tMax + o.D3) )> paraboloid.Edge)
-	                return double.PositiveInfinity;
-	            else return tMax;
-	        }
-	        if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D2 * tMin + o.D2)) > paraboloid.Edge)
-	        {
-	            if (Math.Abs(dirMultiplier * (d.D2 * tMax + o.D2)) > paraboloid.Edge)
-	                return double.PositiveInfinity;
-	            else return tMax;
-	        }
-	        if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D1 * tMin + o.D1)) > paraboloid.Edge)
-	        {
-	            if (Math.Abs(dirMultiplier * (d.D1 * tMax + o.D1)) > paraboloid.Edge)
-	                return double.PositiveInfinity;
-	            else return tMax;
-	        }
+		    //var o = O;
+		    //var d = D;
 
-            return tMin;
+		    //if (paraboloid.Offset != null)
+		    //{
+		    //    o = new Vector(o.D1 - paraboloid.Offset.D1, o.D2 - paraboloid.Offset.D2, o.D3 - paraboloid.Offset.D3);
+		    //}
+
+		    //   if (paraboloid.AxisDirection == Axis.Z)
+		    //{
+		    //    o = new Vector(o.D1, o.D2, o.D3);
+		    //    d = new Vector(d.D1, d.D2, d.D3);
+		    //   }
+		    //   else if (paraboloid.AxisDirection == Axis.Y)
+		    //{
+		    //    o = new Vector(o.D1, o.D3, o.D2);
+		    //       d = new Vector(d.D1, d.D3, d.D2);
+		    //}
+		    //else if (paraboloid.AxisDirection == Axis.X)
+		    //{
+		    //    o = new Vector(o.D3, o.D2, o.D1);
+		    //    d = new Vector(d.D3, d.D2, d.D1);
+		    //} else throw new Exception($"Unknown direction {paraboloid.AxisDirection}");
+
+		    //int dirMultiplier = 1;
+		    //if (paraboloid.Direction == Direction.Down)
+		    //{
+		    //    dirMultiplier = -1;
+		    //}
+
+		    //   var width = paraboloid.Width;
+
+		    //var p1 = 1 / (2 * (Pow2(d.D1) - Pow2(d.D2)));
+		    //var p2 = (-2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) + width * d.D3;
+		    //var p3 = Math.Sqrt(Pow2((2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) - width * d.D3) -
+		    //                   4 * ((Pow2(d.D1) - Pow2(d.D2))) *
+		    //                   ((Pow2(o.D1) - Pow2(o.D2)) - width * o.D3));//cache this line
+
+		    //   var t1 = p1 * (p2 - p3);
+		    //   var t2 = p1 * (p2 + p3);
+
+		    //   //edge by direction
+		    //   var tMin = Math.Min(t1, t2);
+		    //var tMax = Math.Max(t1, t2);
+		    //if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D3 * tMin + o.D3)) > paraboloid.Edge)
+		    //{
+		    //    if (Math.Abs(dirMultiplier * (d.D3 * tMax + o.D3) )> paraboloid.Edge)
+		    //        return double.PositiveInfinity;
+		    //    else return tMax;
+		    //}
+		    //if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D2 * tMin + o.D2)) > paraboloid.Edge)
+		    //{
+		    //    if (Math.Abs(dirMultiplier * (d.D2 * tMax + o.D2)) > paraboloid.Edge)
+		    //        return double.PositiveInfinity;
+		    //    else return tMax;
+		    //}
+		    //if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D1 * tMin + o.D1)) > paraboloid.Edge)
+		    //{
+		    //    if (Math.Abs(dirMultiplier * (d.D1 * tMax + o.D1)) > paraboloid.Edge)
+		    //        return double.PositiveInfinity;
+		    //    else return tMax;
+		    //}
+
+		    //   return tMin;
 	    }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

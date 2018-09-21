@@ -138,21 +138,28 @@ namespace RayTracing {
                         Color = Colors.GreenYellow,
                         Reflect = 0.7
                     }
+                },
+                Surfaces = new List<Surface>
+                {
+                    new Surface
+                    {
+                        Color = Color.FromRgb(255, 0, 235),
+                        Reflect = 0.2,
+                        Specular = 200,
+						A = 1,
+						B = 1,
+						C = 0,
+						D = 0,
+						E = 0,
+						F = -1
+
+                        //AxisDirection = Axis.Y,
+                        //Direction = Direction.Down,
+                        //Width = 1,
+                        //Edge = 4,
+                        //Offset = new Vector(0, 2, 10)
+                    }
                 }
-                //Surfaces = new List<Surface>
-                //{
-                //    new Surface
-                //    {
-                //        Color = Color.FromRgb(255, 0, 235),
-                //        Reflect = 0.2,
-                //        Specular = 200,
-                //        AxisDirection = Axis.Y,
-                //        //Direction = Direction.Down,
-                //        Width = 1,
-                //        //Edge = 4,
-                //        Offset = new Vector(0, 2, 10)
-                //    }
-                //}
             };
 
 			var options = new RenderOptions {
@@ -162,7 +169,7 @@ namespace RayTracing {
                 //CameraPos = new Vector(5, 0, 0),
                 //CameraPos = new Vector(1.75, 0.5, 4),
 			    //CameraPos = new Vector(0, 0, -2.4),
-				CameraPos = new Vector(0, 0, 0),
+				CameraPos = new Vector(5, 0, 0),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
@@ -171,7 +178,7 @@ namespace RayTracing {
 				RecursionDepth = 2,
 				//CameraRotationZ = -45,
 				//CameraRotationX = 45,
-				//CameraRotationY = 90
+				CameraRotationY = 90
 			};
 
 			Console.WriteLine("Started");
