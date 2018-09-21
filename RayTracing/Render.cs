@@ -73,10 +73,7 @@ namespace RayTracing {
 				var a = IntersectRayPlane(_options.CameraPos, plane.Normal, plane);
 
 				if (a > 0) {
-					plane.D = -plane.D;
-					plane.A = -plane.A;
-					plane.B = -plane.B;
-					plane.C = -plane.C;
+					plane.AssignCoeffs(-plane.A, -plane.B, -plane.C, -plane.D);
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -101,21 +101,23 @@ namespace RayTracing {
                     }
                 },
                 Planes = new List<Plane> {
-                    new Plane {
+                    new Plane(
+	                    a: 0,
+						b: -1,
+						c: 0,
+						d: -1
+	                    ) {
                         Color = Color.FromRgb(255, 255, 0),
-                        A = 0.0,
-                        B = 1,
-                        C = 0,
-                        D = 1,
                         Reflect = 0.3,
                         Specular = 100
                     },
-                    new Plane {
+                    new Plane (
+	                    a: 0,
+	                    b: 0,
+	                    c: -1,
+	                    d: 15
+	                    ) {
                         Color = Color.FromRgb(110, 157, 153),
-                        A = 0.0,
-                        B = 0,
-                        C = -1,
-                        D = 15,
                         Reflect = 0.3,
                         Specular = 50
                     }
@@ -160,7 +162,7 @@ namespace RayTracing {
                 //CameraPos = new Vector(5, 0, 0),
                 //CameraPos = new Vector(1.75, 0.5, 4),
 			    //CameraPos = new Vector(0, 0, -2.4),
-				CameraPos = new Vector(-2, 0, 0),
+				CameraPos = new Vector(0, 0, 0),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
