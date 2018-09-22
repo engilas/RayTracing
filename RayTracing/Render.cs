@@ -272,75 +272,21 @@ namespace RayTracing {
 		                       (a * o1.Pow2() + b * o2.Pow2() + c * o3.Pow2() + d * o3 + e * o2 + f));
 		    var p3 = 2 * (a * d1.Pow2() + b * d2.Pow2() + c * d3.Pow2());
 
-		    var t1 = (p1 - p2) / p3;
-		    var t2 = (p1 + p2) / p3;
+	        var min = double.PositiveInfinity;
 
-		    return Math.Min(t1, t2);
+            var t1 = (p1 - p2) / p3;
+            var t2 = (p1 + p2) / p3;
 
-		    //var o = O;
-		    //var d = D;
+            if (t1 > 1e-4 && t1 < min)
+            {
+                min = t1;
+            }
+            if (t2 > 1e-4 && t2 < min)
+            {
+                min = t2;
+            }
 
-		    //if (paraboloid.Offset != null)
-		    //{
-		    //    o = new Vector(o.D1 - paraboloid.Offset.D1, o.D2 - paraboloid.Offset.D2, o.D3 - paraboloid.Offset.D3);
-		    //}
-
-		    //   if (paraboloid.AxisDirection == Axis.Z)
-		    //{
-		    //    o = new Vector(o.D1, o.D2, o.D3);
-		    //    d = new Vector(d.D1, d.D2, d.D3);
-		    //   }
-		    //   else if (paraboloid.AxisDirection == Axis.Y)
-		    //{
-		    //    o = new Vector(o.D1, o.D3, o.D2);
-		    //       d = new Vector(d.D1, d.D3, d.D2);
-		    //}
-		    //else if (paraboloid.AxisDirection == Axis.X)
-		    //{
-		    //    o = new Vector(o.D3, o.D2, o.D1);
-		    //    d = new Vector(d.D3, d.D2, d.D1);
-		    //} else throw new Exception($"Unknown direction {paraboloid.AxisDirection}");
-
-		    //int dirMultiplier = 1;
-		    //if (paraboloid.Direction == Direction.Down)
-		    //{
-		    //    dirMultiplier = -1;
-		    //}
-
-		    //   var width = paraboloid.Width;
-
-		    //var p1 = 1 / (2 * (Pow2(d.D1) - Pow2(d.D2)));
-		    //var p2 = (-2 * d.D1 * o.D1 + 2 * d.D2 * o.D2) + width * d.D3;
-		    //var p3 = Math.Sqrt(Pow2((2 * d.D1 * o.D1 - 2 * d.D2 * o.D2) - width * d.D3) -
-		    //                   4 * ((Pow2(d.D1) - Pow2(d.D2))) *
-		    //                   ((Pow2(o.D1) - Pow2(o.D2)) - width * o.D3));//cache this line
-
-		    //   var t1 = p1 * (p2 - p3);
-		    //   var t2 = p1 * (p2 + p3);
-
-		    //   //edge by direction
-		    //   var tMin = Math.Min(t1, t2);
-		    //var tMax = Math.Max(t1, t2);
-		    //if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D3 * tMin + o.D3)) > paraboloid.Edge)
-		    //{
-		    //    if (Math.Abs(dirMultiplier * (d.D3 * tMax + o.D3) )> paraboloid.Edge)
-		    //        return double.PositiveInfinity;
-		    //    else return tMax;
-		    //}
-		    //if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D2 * tMin + o.D2)) > paraboloid.Edge)
-		    //{
-		    //    if (Math.Abs(dirMultiplier * (d.D2 * tMax + o.D2)) > paraboloid.Edge)
-		    //        return double.PositiveInfinity;
-		    //    else return tMax;
-		    //}
-		    //if (paraboloid.Edge > 0 && Math.Abs(dirMultiplier * (d.D1 * tMin + o.D1)) > paraboloid.Edge)
-		    //{
-		    //    if (Math.Abs(dirMultiplier * (d.D1 * tMax + o.D1)) > paraboloid.Edge)
-		    //        return double.PositiveInfinity;
-		    //    else return tMax;
-		    //}
-
-		    //   return tMin;
+	        return min;
 	    }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

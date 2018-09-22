@@ -40,7 +40,7 @@ namespace RayTracing {
 
 			Width = 800;
 			Height = 800;
-			var bg = Color.FromRgb(0, 0, 0);
+			var bg = Color.FromRgb(15, 211, 255);
 
             var pointLight = new Vector(3, 5, 0);
 
@@ -102,21 +102,21 @@ namespace RayTracing {
                 },
                 Planes = new List<Plane> {
                     new Plane(
-	                    a: 0,
-						b: -1,
-						c: 0,
-						d: -1
-	                    ) {
+                        a: 0,
+                        b: -1,
+                        c: 0,
+                        d: -1
+                        ) {
                         Color = Color.FromRgb(255, 255, 0),
                         Reflect = 0.3,
                         Specular = 100
                     },
                     new Plane (
-	                    a: 0,
-	                    b: 0,
-	                    c: -1,
-	                    d: 15
-	                    ) {
+                        a: 0,
+                        b: 0,
+                        c: -1,
+                        d: 15
+                        ) {
                         Color = Color.FromRgb(110, 157, 153),
                         Reflect = 0.3,
                         Specular = 50
@@ -147,11 +147,11 @@ namespace RayTracing {
                         Reflect = 0.2,
                         Specular = 200,
 						A = 1,
-						B = 1,
+						B = -1,
 						C = 0,
-						D = 0,
+						D = -2,
 						E = 0,
-						F = -1
+						F = 0
 
                         //AxisDirection = Axis.Y,
                         //Direction = Direction.Down,
@@ -169,7 +169,7 @@ namespace RayTracing {
                 //CameraPos = new Vector(5, 0, 0),
                 //CameraPos = new Vector(1.75, 0.5, 4),
 			    //CameraPos = new Vector(0, 0, -2.4),
-				CameraPos = new Vector(5, 0, 0),
+				CameraPos = new Vector(0, 0, -5),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
@@ -178,7 +178,7 @@ namespace RayTracing {
 				RecursionDepth = 2,
 				//CameraRotationZ = -45,
 				//CameraRotationX = 45,
-				CameraRotationY = 90
+				//CameraRotationY = 90
 			};
 
 			Console.WriteLine("Started");
@@ -189,7 +189,7 @@ namespace RayTracing {
 
 			ProcessRender(render);
 
-			Width = 0;Height=0;
+			//Width = 0;Height=0;
 
 		}
 
