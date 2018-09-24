@@ -35,7 +35,7 @@ namespace RayTracing {
 
             var result = new Color[pixelCount];
 		    Parallel.For(0, pixelCount, i =>
-		            //for (int i = 0; i < pixelCount; i++)
+		    //        for (int i = 0; i < pixelCount; i++)
 		        {
 		            var x = i % _options.CanvasWidth - xEdge;
 		            var y = i / _options.CanvasHeight - yEdge;
@@ -266,16 +266,22 @@ namespace RayTracing {
 		    var o2 = O.D2;
 		    var o3 = O.D3;
 
-		    var p1 = -2 * a * d1 * o1 - 2 * b * d2 * o2 - 2 * c * d3 * o3 - d * d3 - d2 * e;
-		    var p2 = Math.Sqrt((2 * a * d1 * o1 + 2 * b * d2 * o2 + 2 * c * d3 * o3 + d * d3 + d2 * e).Pow2()
-		                       - 4 * (a * d1.Pow2() + b * d2.Pow2() + c * d3.Pow2()) *
-		                       (a * o1.Pow2() + b * o2.Pow2() + c * o3.Pow2() + d * o3 + e * o2 + f));
-		    var p3 = 2 * (a * d1.Pow2() + b * d2.Pow2() + c * d3.Pow2());
+		    var p1 = 2 * a * d1 * o1 + 2 * b * d2 * o2 + 2 * c * d3 * o3 + d * d3 + d2 * e;
+		    var p2 = a * d1.Pow2() + b * d2.Pow2() + c * d3.Pow2();
+		    var p3 = a * o1.Pow2() + b * o2.Pow2() + c * o3.Pow2() + d * o3 + e * o2 + f;
+			var p4 = Math.Sqrt(p1.Pow2() - 4 * p2 * p3);
 
-	        var min = double.PositiveInfinity;
+			//division by zero
+            if (Math.Abs(p2) < 1e-20)
+            {
+				var t = - p3 / p1;
+                return t;
+            }
 
-            var t1 = (p1 - p2) / p3;
-            var t2 = (p1 + p2) / p3;
+            var min = double.PositiveInfinity;
+
+            var t1 = (-p1 - p4) / (2 * p2);
+            var t2 = (-p1 + p4) / (2 * p2);
 
             if (t1 > 1e-4 && t1 < min)
             {
