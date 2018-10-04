@@ -259,6 +259,13 @@ namespace RayTracing {
 		    var e = surface.E;
 		    var f = surface.F;
 
+		    O = new Vector(O.D1 - surface.Position.D1, O.D2 - surface.Position.D2, O.D3 - surface.Position.D3);
+
+		    if (surface.Rotation != null) {
+			    D = D.MultiplyMatrix(surface.Rotation.Rotation);
+			    O = O.MultiplyMatrix(surface.Rotation.Rotation);
+		    }
+
 		    var d1 = D.D1;
 		    var d2 = D.D2;
 		    var d3 = D.D3;

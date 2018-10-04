@@ -66,7 +66,14 @@ namespace RayTracing {
                     //    Color = Color.FromRgb(0, 255, 0),
                     //    Specular = 10,
                     //    Reflect = 0.4
-                    //}
+                    //},
+	                //new Sphere {
+		               // Center = new Vector(-5, 5, 6),
+		               // Radius = 1,
+		               // Color = Color.FromRgb(0, 0, 255),
+		               // Specular = 500,
+		               // Reflect = 0.5
+	                //},
                     new Sphere
                     {
                         Color = Color.FromRgb(255, 255, 255),
@@ -140,11 +147,14 @@ namespace RayTracing {
                         Reflect = 0.2,
                         Specular = 200,
 						A = 1,
-						B = -1,
-						C = 0,
-						D = -2,
+						B = 0.1,
+						C = 0.1,
+						D = 0,
 						E = 0,
-						F = 19
+						F = -1,
+
+	                    Position = new Vector(-5, 4, 6),
+						Rotation = new RotationMatrix(-90, 0, 0)
 
                         //AxisDirection = Axis.Y,
                         //Direction = Direction.Down,
@@ -162,7 +172,8 @@ namespace RayTracing {
                 //CameraPos = new Vector(5, 0, 0),
                 //CameraPos = new Vector(1.75, 0.5, 4),
 			    //CameraPos = new Vector(0, 0, -2.4),
-				CameraPos = new Vector(-10, 0, 6),
+				//CameraPos = new Vector(-10, 0, 6),
+				CameraPos = new Vector(0, 0, -10),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
@@ -170,8 +181,8 @@ namespace RayTracing {
 				ViewportDistance = 1,
 				RecursionDepth = 2,
 				//CameraRotationZ = -45,
-				//CameraRotationX = 45,
-				CameraRotationY = -90
+				//CameraRotationX = 75,
+				//CameraRotationY = -180
 			};
 
 			Console.WriteLine("Started");

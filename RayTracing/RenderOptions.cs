@@ -7,8 +7,8 @@ namespace RayTracing
 	    public int CanvasWidth { get; set; } 
 	    public int CanvasHeight { get; set; } 
 
-	    public int ViewportWidth{ get; set; }
-	    public int ViewportHeight{ get; set; } 
+	    public double ViewportWidth{ get; set; }
+	    public double ViewportHeight{ get; set; } 
 
 		public int RecursionDepth { get; set; }
 
@@ -20,6 +20,6 @@ namespace RayTracing
 	    public double CameraRotationY { get; set; }
 	    public double CameraRotationZ { get; set; }
 
-	    public int ViewportDistance{ get; set; }
+	    public double ViewportDistance{ get; set; }
     }
 }
