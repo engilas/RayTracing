@@ -26,8 +26,6 @@ namespace RayTracing {
             var xEdge = (int) Math.Round(_options.CanvasWidth / 2d);
 			var yEdge = (int) Math.Round(_options.CanvasHeight / 2d);
 		    var pixelCount = _options.CanvasWidth * _options.CanvasHeight;
-            
-            InitPrimitives();
 
 		    var sw = Stopwatch.StartNew();
 
@@ -68,16 +66,6 @@ namespace RayTracing {
 				y * _options.ViewportHeight / _options.CanvasHeight, _options.ViewportDistance);
 		}
 
-		private void InitPrimitives() {
-			foreach (var plane in _scene.Planes) {
-				var a = IntersectRayPlane(_options.CameraPos, plane.Normal, plane);
-
-				if (a > 0) {
-					plane.AssignCoeffs(-plane.A, -plane.B, -plane.C, -plane.D);
-				}
-			}
-		}
-
 		private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth) {
 
 			var (closestPrimitive, closest_t) = ClosestIntersection(O, D, tMin, tMax);
@@ -114,8 +102,12 @@ namespace RayTracing {
 			}
 
 		    normal = normal.Multiply(1 / normal.Lenght()); //unit vector
+            if (normal.DotProduct(D) > 0)
+            {
+                normal = normal.Multiply(-1);
+            }
 
-		    Color color = closestPrimitive.Color;
+            Color color = closestPrimitive.Color;
             if (closestPrimitive is Plane)
             {
                 var x = (int)Math.Round(O.D1 + D.D1 * closest_t) % 2;

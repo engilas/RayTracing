@@ -7,8 +7,37 @@ using RayTracing.Models;
 
 namespace RayTracing.Primitives
 {
+    class SurfaceCoeffs
+    {
+        public double 
+            A, //x2
+            B, //y2
+            C, //z2
+            D, //z
+            E, //y
+            F; //const
+    }
+
     class Surface : Primitive {
-	    public double A, B, C, D, E, F;
+	    public double 
+	        A, //x2
+	        B, //y2
+	        C, //z2
+	        D, //z
+	        E, //y
+	        F; //const
+
+        public Surface(){}
+
+        public Surface(SurfaceCoeffs coeffs)
+        {
+            A = coeffs.A;
+            B = coeffs.B;
+            C = coeffs.C;
+            D = coeffs.D;
+            E = coeffs.E;
+            F = coeffs.F;
+        }
 
 	    public RotationMatrix Rotation { get; set; }
 	    public Vector Position { get; set; } = new Vector(0,0,0);
@@ -32,6 +61,99 @@ namespace RayTracing.Primitives
 	        } else {
 		        return normal;
 	        }
+        }
+
+        public static SurfaceCoeffs GetEllipsoid(double a, double b, double c)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = Math.Pow(b, -2),
+                C = Math.Pow(c, -2),
+                F = -1,
+            };
+        }
+
+        public static SurfaceCoeffs GetEllipticParaboloid(double a, double b)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = Math.Pow(b, -2),
+                D = -1,
+            };
+        }
+
+        public static SurfaceCoeffs GetHyperbolicParaboloid(double a, double b)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = - Math.Pow(b, -2),
+                D = -1,
+            };
+        }
+
+        public static SurfaceCoeffs GetEllipticHyperboloidOneSheet(double a, double b, double c)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = Math.Pow(b, -2),
+                C = - Math.Pow(c, -2),
+                F = -1,
+            };
+        }
+
+        public static SurfaceCoeffs GetEllipticHyperboloidTwoSheets(double a, double b, double c)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = Math.Pow(b, -2),
+                C = - Math.Pow(c, -2),
+                F = 1,
+            };
+        }
+
+        public static SurfaceCoeffs GetEllipticCone(double a, double b, double c)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = Math.Pow(b, -2),
+                C = - Math.Pow(c, -2),
+                F = 0,
+            };
+        }
+
+        public static SurfaceCoeffs GetEllipticCylinder(double a, double b)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = Math.Pow(b, -2),
+                F = -1,
+            };
+        }
+
+        public static SurfaceCoeffs GetHyperbolicCylinder(double a, double b)
+        {
+            return new SurfaceCoeffs
+            {
+                A = Math.Pow(a, -2),
+                B = - Math.Pow(b, -2),
+                F = -1,
+            };
+        }
+
+        public static SurfaceCoeffs GetParabolicCylinder(double a)
+        {
+            return new SurfaceCoeffs
+            {
+                A = 1,
+                E = 2 * a,
+            };
         }
     }
 }

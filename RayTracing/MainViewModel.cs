@@ -141,26 +141,14 @@ namespace RayTracing {
                 },
                 Surfaces = new List<Surface>
                 {
-                    new Surface
+                    new Surface(Surface.GetParabolicCylinder(1))
                     {
                         Color = Color.FromRgb(255, 0, 235),
                         Reflect = 0.2,
                         Specular = 200,
-						A = 1,
-						B = 0.1,
-						C = 0.1,
-						D = 0,
-						E = 0,
-						F = -1,
 
-	                    Position = new Vector(-5, 4, 6),
-						Rotation = new RotationMatrix(-90, 0, 0)
-
-                        //AxisDirection = Axis.Y,
-                        //Direction = Direction.Down,
-                        //Width = 1,
-                        //Edge = 4,
-                        //Offset = new Vector(0, 2, 10)
+                        Position = new Vector(0, 2, 0),
+                        Rotation = new RotationMatrix(-90, 0, 0)
                     }
                 }
             };
@@ -173,7 +161,8 @@ namespace RayTracing {
                 //CameraPos = new Vector(1.75, 0.5, 4),
 			    //CameraPos = new Vector(0, 0, -2.4),
 				//CameraPos = new Vector(-10, 0, 6),
-				CameraPos = new Vector(0, 0, -10),
+				//CameraPos = new Vector(0, 0, -10),
+			    CameraPos = new Vector(0, 0, -10),
                 ViewportWidth = 1,
 				ViewportHeight = 1,
 				CanvasWidth = Width,
