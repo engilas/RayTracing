@@ -278,6 +278,7 @@ namespace RayTracing {
             }
 
             var min = double.PositiveInfinity;
+	        var max = double.PositiveInfinity;
 
             var t1 = (-p1 - p4) / (2 * p2);
             var t2 = (-p1 + p4) / (2 * p2);
@@ -285,13 +286,88 @@ namespace RayTracing {
             if (t1 > 1e-4 && t1 < min)
             {
                 min = t1;
+                max = t2;
             }
             if (t2 > 1e-4 && t2 < min)
             {
                 min = t2;
+                max = t1;
             }
 
+            //if (surface.)
+
+            var x = D.D1 * min + O.D1;
+	        if (x > surface.XMax || x < surface.XMin)
+	        {
+	            if (min > 1e-4)
+	            {
+	                x = D.D1 * max + O.D1;
+	                if (x > surface.XMax || x < surface.XMin)
+	                {
+	                    return double.PositiveInfinity;
+	                }
+	                else
+	                {
+	                    Swap(ref min, ref max);
+	                }
+	            }
+	            else
+	            {
+	                return double.PositiveInfinity;
+	            }
+	        }
+
+	        var y = D.D2 * min + O.D2;
+	        if (y > surface.YMax || y < surface.YMin)
+	        {
+	            if (min > 1e-4)
+	            {
+	                y = D.D2 * max + O.D2;
+	                if (y > surface.YMax || y < surface.YMin)
+	                {
+	                    return double.PositiveInfinity;
+	                }
+	                else
+	                {
+	                    Swap(ref min, ref max);
+	                }
+	            }
+	            else
+	            {
+	                return double.PositiveInfinity;
+	            }
+	        }
+
+	        var z = D.D3 * min + O.D3;
+	        if (z > surface.ZMax || z < surface.ZMin)
+	        {
+	            if (min > 1e-4)
+	            {
+	                z = D.D3 * max + O.D3;
+	                if (z > surface.ZMax || z < surface.ZMin)
+	                {
+	                    return double.PositiveInfinity;
+	                }
+	                else
+	                {
+	                    Swap(ref min, ref max);
+	                }
+	            }
+	            else
+	            {
+	                return double.PositiveInfinity;
+	            }
+	        }
+
+
 	        return min;
+	    }
+
+	    private void Swap(ref double d1, ref double d2)
+	    {
+	        var tmp = d1;
+	        d1 = d2;
+	        d2 = tmp;
 	    }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

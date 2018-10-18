@@ -141,14 +141,17 @@ namespace RayTracing {
                 },
                 Surfaces = new List<Surface>
                 {
-                    new Surface(Surface.GetParabolicCylinder(1))
+                    new Surface(Surface.GetEllipsoid(5, 5, 5))
                     {
                         Color = Color.FromRgb(255, 0, 235),
-                        Reflect = 0.2,
+                        Reflect = 0.4,
                         Specular = 200,
 
-                        Position = new Vector(0, 2, 0),
-                        Rotation = new RotationMatrix(-90, 0, 0)
+                        Position = new Vector(0, 0, 5),
+                        //Rotation = new RotationMatrix(-90, 0, 0)
+                        ZMin = -2,
+                        XMin = -1,
+                        XMax = 1
                     }
                 }
             };
@@ -170,8 +173,8 @@ namespace RayTracing {
 				ViewportDistance = 1,
 				RecursionDepth = 2,
 				//CameraRotationZ = -45,
-				//CameraRotationX = 75,
-				//CameraRotationY = -180
+				//CameraRotationX = -15,
+			    //CameraRotationY = 90
 			};
 
 			Console.WriteLine("Started");

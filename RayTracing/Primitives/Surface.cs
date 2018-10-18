@@ -27,9 +27,13 @@ namespace RayTracing.Primitives
 	        E, //y
 	        F; //const
 
-        public Surface(){}
+        public Surface()
+        {
+            XMin = YMin = ZMin = double.MinValue;
+            XMax = YMax = ZMax = double.MaxValue;
+        }
 
-        public Surface(SurfaceCoeffs coeffs)
+        public Surface(SurfaceCoeffs coeffs) : this()
         {
             A = coeffs.A;
             B = coeffs.B;
@@ -38,6 +42,8 @@ namespace RayTracing.Primitives
             E = coeffs.E;
             F = coeffs.F;
         }
+
+        public double XMin, YMin, ZMin, XMax, YMax, ZMax;
 
 	    public RotationMatrix Rotation { get; set; }
 	    public Vector Position { get; set; } = new Vector(0,0,0);
