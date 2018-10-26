@@ -153,6 +153,17 @@ namespace RayTracing {
                         XMin = -1,
                         XMax = 1
                     }
+                },
+                Disks = new List<Disk>
+                {
+                    new Disk(1, 1, 1)
+                    {
+                        Color = Colors.Chocolate,
+                        Reflect = 0.1,
+                        Specular = 100,
+                        Position = new Vector(2, 0, 0),
+                        Rotation = new RotationMatrix(-35, 0, 0)
+                    }
                 }
             };
 

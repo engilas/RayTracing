@@ -11,5 +11,6 @@ namespace RayTracing
 	    public List<Box> Boxes { get; set; } = new List<Box>();
         public List<Surface> Surfaces { get; set; } = new List<Surface>();
 	    public List<Torus> Toruses { get; set; } = new List<Torus>();
+        public List<Disk> Disks { get; set; } = new List<Disk>();
     }
 }

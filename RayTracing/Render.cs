@@ -101,6 +101,11 @@ namespace RayTracing {
 				normal = torus.GetNormal(O, D, closest_t);
 			}
 
+		    if (closestPrimitive is Disk disk)
+		    {
+		        normal = disk.GetNormal();
+		    }
+
 		    normal = normal.Multiply(1 / normal.Lenght()); //unit vector
             if (normal.DotProduct(D) > 0)
             {
@@ -190,6 +195,18 @@ namespace RayTracing {
 				    }
 			    }
 		    }
+	        foreach (var disk in _scene.Disks)
+	        {
+                var t = IntersectRayDisk(disk, O, D);
+                if (!double.IsNaN(t))
+                {
+                    if (t >= tMin && t <= tMax && t < closest_t)
+                    {
+                        closest_t = t;
+                        closestPrimitive = disk;
+                    }
+                }
+            }
 
 	        return (closestPrimitive, closest_t);
 	    }
@@ -443,6 +460,26 @@ namespace RayTracing {
             return min;
 	    }
 
+	    private double IntersectRayDisk(Disk disk, Vector O, Vector D)
+	    {
+	        O = new Vector(O.D1 - disk.Position.D1, O.D2 - disk.Position.D2, O.D3 - disk.Position.D3);
+	        if (disk.Rotation != null) {
+	            D = D.MultiplyMatrix(disk.Rotation.Rotation);
+	            O = O.MultiplyMatrix(disk.Rotation.Rotation);
+	        }
+
+	        var t = -O.D3 / D.D3;
+
+	        var x = D.D1 * t + O.D1;
+	        var y = D.D2 * t + O.D2;
+
+	        if ((x * x) / disk.A + (y * y) / disk.B < disk.R2)
+	        {
+	            return t;
+	        }
+
+	        return double.PositiveInfinity;
+	    }
 
         private double ComputeLighting(Vector point, Vector normal, Vector view, int specular) {
 			var i = 0.0;
