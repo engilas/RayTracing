@@ -300,84 +300,52 @@ namespace RayTracing {
             var t1 = (-p1 - p4) / (2 * p2);
             var t2 = (-p1 + p4) / (2 * p2);
 
-            if (t1 > 1e-4 && t1 < min)
+	        var epsilon = 1e-4;
+
+            if (t1 > epsilon && t1 < min)
             {
                 min = t1;
                 max = t2;
             }
-            if (t2 > 1e-4 && t2 < min)
+            if (t2 > epsilon && t2 < min)
             {
                 min = t2;
                 max = t1;
             }
 
-            //if (surface.)
+	        if (!CheckSurfaceEdges(D.D1, O.D1, ref min, ref max, surface.XMin, surface.XMax, epsilon))
+	            return double.PositiveInfinity;
 
-            var x = D.D1 * min + O.D1;
-	        if (x > surface.XMax || x < surface.XMin)
-	        {
-	            if (min > 1e-4)
-	            {
-	                x = D.D1 * max + O.D1;
-	                if (x > surface.XMax || x < surface.XMin)
-	                {
-	                    return double.PositiveInfinity;
-	                }
-	                else
-	                {
-	                    Swap(ref min, ref max);
-	                }
-	            }
-	            else
-	            {
-	                return double.PositiveInfinity;
-	            }
-	        }
+	        if (!CheckSurfaceEdges(D.D2, O.D2, ref min, ref max, surface.YMin, surface.YMax, epsilon))
+	            return double.PositiveInfinity;
 
-	        var y = D.D2 * min + O.D2;
-	        if (y > surface.YMax || y < surface.YMin)
-	        {
-	            if (min > 1e-4)
-	            {
-	                y = D.D2 * max + O.D2;
-	                if (y > surface.YMax || y < surface.YMin)
-	                {
-	                    return double.PositiveInfinity;
-	                }
-	                else
-	                {
-	                    Swap(ref min, ref max);
-	                }
-	            }
-	            else
-	            {
-	                return double.PositiveInfinity;
-	            }
-	        }
-
-	        var z = D.D3 * min + O.D3;
-	        if (z > surface.ZMax || z < surface.ZMin)
-	        {
-	            if (min > 1e-4)
-	            {
-	                z = D.D3 * max + O.D3;
-	                if (z > surface.ZMax || z < surface.ZMin)
-	                {
-	                    return double.PositiveInfinity;
-	                }
-	                else
-	                {
-	                    Swap(ref min, ref max);
-	                }
-	            }
-	            else
-	            {
-	                return double.PositiveInfinity;
-	            }
-	        }
-
-
+	        if (!CheckSurfaceEdges(D.D3, O.D3, ref min, ref max, surface.ZMin, surface.ZMax, epsilon))
+	            return double.PositiveInfinity;
+            
 	        return min;
+	    }
+
+	    private bool CheckSurfaceEdges(double d, double o, ref double tMin, ref double tMax, double axisMin, double axisMax, double epsilon)
+	    {
+	        var axisValue = d * tMin + o;
+	        if (axisValue > axisMax || axisValue < axisMin)
+	        {
+	            if (tMax < epsilon)
+	            {
+	                return false;
+	            }
+
+	            axisValue = d * tMax + o;
+
+	            if (axisValue > axisMax || axisValue < axisMin)
+	            {
+	                return false;
+	            }
+
+	            Swap(ref tMin, ref tMax);
+	        }
+
+	        return true;
 	    }
 
 	    private void Swap(ref double d1, ref double d2)
