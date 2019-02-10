@@ -29,7 +29,9 @@ namespace RayTracing {
 
 		    var sw = Stopwatch.StartNew();
 
-            var rotationMtx = new RotationMatrix(_options.CameraRotationX, _options.CameraRotationY, _options.CameraRotationZ);
+            var rotationMtx = new RotationMatrix(15, -35, 0);
+            var quat = new Quaternion(new Vector(0, 1, 0), 45)
+                .multiply(new Quaternion(new Vector(1, 0, 0), -15));
 
             var result = new Color[pixelCount];
 		    Parallel.For(0, pixelCount, i =>
@@ -40,9 +42,11 @@ namespace RayTracing {
 
 		            var D = CanvasToViewport(x, y);
 
-			        D = D.MultiplyMatrix(rotationMtx.Rotation);
+                    var test = quat.Rotate(D);
+                    //D = D.MultiplyMatrix(rotationMtx.Rotation);
+                    D = test;
 
-		            var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
+                    var color = TraceRay(_options.CameraPos, D, 1d, double.PositiveInfinity, _options.RecursionDepth);
 
 		            result[i] = color.Clamp().ToColor();
 		        }

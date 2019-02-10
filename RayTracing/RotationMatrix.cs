@@ -4,13 +4,6 @@ namespace RayTracing
 {
     class RotationMatrix
     {
-     //   private readonly double[,] _xRotation;
-     //   private readonly double[,] _yRotation;
-     //   private readonly double[,] _zRotation;
-
-	    //private readonly double[,] _xRotationInv;
-	    //private readonly double[,] _yRotationInv;
-	    //private readonly double[,] _zRotationInv;
 
 	    public readonly double[,] Rotation;
 	    public readonly double[,] RotationInv;
@@ -19,29 +12,27 @@ namespace RayTracing
         {
 			Rotation = MultiplyMatrixes(MultiplyMatrixes(GetZRotation(zGrad), GetYRotation(yGrad)), GetXRotation(xGrad));
             RotationInv = MultiplyMatrixes(MultiplyMatrixes(GetXRotation(-xGrad), GetYRotation(-yGrad)), GetZRotation(-zGrad));
-
-	  //      Truncate(Rotation);
-			//Truncate(RotationInv);
-         //   _xRotation = GetXRotation(xGrad);
-         //   _yRotation = GetYRotation(yGrad);
-         //   _zRotation = GetZRotation(zGrad);
-
-	        //_xRotationInv = GetXRotation(-xGrad);
-	        //_yRotationInv = GetYRotation(-yGrad);
-	        //_zRotationInv = GetZRotation(-zGrad);
-
-            //Rotation = Times(Times(_xRotation, _xRotation), _zRotation);
         }
 
-        //private void Truncate(double[,] arr) {
-        // for (int i = 0; i < 3; i++) {
-        //  for (int j = 0; j < 3; j++) {
-        //   if (Math.Abs(arr[i, j]) < 1e-10) {
-        //    arr[i, j] = 0;
-        //   }
-        //  }
-        // }
-        //}
+        public static double[,] FromEuler(double pitch, double yaw, double roll)
+        {
+            double GetRad(double grad) => Math.PI / 180 * grad;
+            
+            var s1 = Math.Sin(GetRad(pitch));
+            var c1 = Math.Cos(GetRad(pitch));
+            var s2 = Math.Sin(GetRad(yaw));
+            var c2 = Math.Cos(GetRad(yaw));
+            var s3 = Math.Sin(GetRad(roll));
+            var c3 = Math.Cos(GetRad(roll));
+
+            var matrix = Helpers.TransponMatrix(new[,] {
+                {c2, - c3 * s2,s2 * s3},
+                {c1 * s2, c1 * c2 * c3 - s1 * s3, - c3 * s1 - c1 * c2 * s3},
+                {s1 * s2, c1 * s3 + c2 * c3 * s1, c1 * c3 - c2 * s1 * s3}
+            });
+
+            return matrix;
+        }
 
 	    private double[,] MultiplyMatrixes(double[,] m1, double[,] m2) {
 		    var copy = new double[3, 3];
@@ -60,15 +51,6 @@ namespace RayTracing
 
 		    return copy;
 	    }
-
-
-	    //public double[,] X => _xRotation;
-        //public double[,] Y => _yRotation;
-        //public double[,] Z => _zRotation;
-
-        //public double[,] XInv => _xRotationInv;
-        //public double[,] YInv => _yRotationInv;
-        //public double[,] ZInv => _zRotationInv;
 
         private double[,] GetXRotation(double grad)
         {

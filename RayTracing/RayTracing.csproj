@@ -71,6 +71,7 @@
     <Compile Include="Primitives\Surface.cs" />
     <Compile Include="Primitives\Torus.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Quaternion.cs" />
     <Compile Include="RealPolynomialRootFinder.cs" />
     <Compile Include="Render.cs" />
     <Compile Include="RenderOptions.cs" />
