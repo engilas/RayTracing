@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using RayTracing.Models;
@@ -35,12 +36,17 @@ namespace RayTracing {
 
             var result = new Color[pixelCount];
 		    Parallel.For(0, pixelCount, i =>
-		    //        for (int i = 0; i < pixelCount; i++)
+		            //for (int i = 0; i < pixelCount; i++)
 		        {
 		            var x = i % _options.CanvasWidth - xEdge;
 		            var y = i / _options.CanvasHeight - yEdge;
 
 		            var D = CanvasToViewport(x, y);
+
+                if (x == 0 && y == 0)
+                {
+
+                }
 
                     D = quat.Rotate(D);
 
@@ -57,11 +63,29 @@ namespace RayTracing {
                 _canvas.DrawPoint(x, y, result[i]);
             }
 
+            var hash = CalcHash(result);
+
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
+            Console.WriteLine(hash);
 
 			
 		}
+
+        private string CalcHash(Color[] colors)
+        {
+            var bytes = colors.SelectMany(x => new[] { x.R, x.G, x.B }).ToArray();
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                var hash = md5.ComputeHash(bytes);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    sb.Append(hash[i].ToString("X2"));
+                }
+                return sb.ToString();
+            }
+        }
 
 		private Vector CanvasToViewport(double x, double y) {
 			return new Vector(x * _options.ViewportWidth / _options.CanvasWidth,
@@ -69,75 +93,122 @@ namespace RayTracing {
 		}
 
 		private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth) {
+            var colors = new List<Vector>();
+            var reflects = new List<double>();
 
-			var (closestPrimitive, closest_t) = ClosestIntersection(O, D, tMin, tMax);
-			if (closestPrimitive == null) {
-				return Vector.FromColor(_options.BgColor);
-			}
-
-			var view = D.Multiply(-1);
-			var P = O.Add(D.Multiply(closest_t));
-
-			Vector normal = null;
-
-			if (closestPrimitive is Plane plane) {
-				normal = plane.Normal;
-            }
-
-			if (closestPrimitive is Sphere sphere) {
-			    if (sphere.LightTransparent)
-			    {
-			        return Vector.FromColor(sphere.Color);
-			    }
-				normal = P.Subtract(sphere.Center);
-            }
-
-			if (closestPrimitive is Box box) {
-				normal = box.GetNormal(O, D, tMin);
-            }
-            if (closestPrimitive is Surface surface)
+            void SetResult(Vector color, double refl)
             {
-                normal = surface.GetNormal(O, D, closest_t);
+                colors.Add(color);
+                reflects.Add(refl);
             }
-			if (closestPrimitive is Torus torus) {
-				normal = torus.GetNormal(O, D, closest_t);
-			}
 
-		    if (closestPrimitive is Disk disk)
-		    {
-		        normal = disk.GetNormal();
-		    }
-
-		    normal = normal.Multiply(1 / normal.Lenght()); //unit vector
-            if (normal.DotProduct(D) > 0)
+            for (int i = 0; i < depth; i++)
             {
-                normal = normal.Multiply(-1);
+                var (closestPrimitive, closest_t) = ClosestIntersection(O, D, tMin, tMax);
+                if (closestPrimitive == null)
+                {
+                    SetResult(Vector.FromColor(_options.BgColor), 0);
+                    break;
+                }
+
+                var view = D.Multiply(-1);
+                var P = O.Add(D.Multiply(closest_t));
+
+                Vector normal = null;
+
+                if (closestPrimitive is Plane plane)
+                {
+                    normal = plane.Normal;
+                }
+
+                if (closestPrimitive is Sphere sphere)
+                {
+                    if (sphere.LightTransparent)
+                    {
+                        SetResult(Vector.FromColor(sphere.Color), 0);
+                        break;
+                    }
+                    normal = P.Subtract(sphere.Center);
+                }
+
+                if (closestPrimitive is Box box)
+                {
+                    normal = box.GetNormal(O, D, tMin);
+                }
+                if (closestPrimitive is Surface surface)
+                {
+                    normal = surface.GetNormal(O, D, closest_t);
+                }
+                if (closestPrimitive is Torus torus)
+                {
+                    normal = torus.GetNormal(O, D, closest_t);
+                }
+
+                if (closestPrimitive is Disk disk)
+                {
+                    normal = disk.GetNormal();
+                }
+
+                normal = normal.Multiply(1 / normal.Lenght()); //unit vector
+                if (normal.DotProduct(D) > 0)
+                {
+                    normal = normal.Multiply(-1);
+                }
+
+                Color color = closestPrimitive.Color;
+                if (closestPrimitive is Plane)
+                {
+                    var x = (int)Math.Round(O.D1 + D.D1 * closest_t) % 2;
+                    var z = (int)Math.Round(O.D3 + D.D3 * closest_t) % 2;
+                    if (x == z)
+                        color = Color.FromRgb(0, 0, 0);
+
+                }
+
+                var local_color = Vector.FromColor(color)
+                    .Multiply(ComputeLighting(P, normal, view, closestPrimitive.Specular));
+
+                //if last reflected ray
+                //if (i == depth - 1)
+                //{
+                //    normals.Add
+                //}
+                var r = closestPrimitive.Reflect;
+
+                colors.Add(local_color);
+                reflects.Add(r);
+
+                if (r <= 0 || depth == 1)
+                    break;
+
+                //setup for next iteration
+                O = P;
+                D = ReflectRay(view, normal); ;
+                tMin = 0.001d;
+                tMax = double.PositiveInfinity;
+
+
+                //var reflectedColor = TraceRay(P, R, 0.001d, double.PositiveInfinity, depth - 1);
+
+                //return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
             }
 
-            Color color = closestPrimitive.Color;
-            if (closestPrimitive is Plane)
+            var colorsCount = colors.Count;
+            var totalColor = colors.Last();
+            if (depth == 1 || colorsCount == 1)
+                return totalColor;
+
+            for(int i = colors.Count - 2; i >= 0; i--)
             {
-                var x = (int)Math.Round(O.D1 + D.D1 * closest_t) % 2;
-                var z = (int)Math.Round(O.D3 + D.D3 * closest_t) % 2;
-                if (x == z)
-                    color = Color.FromRgb(0, 0, 0);
-
+                var reflect = reflects[i];
+                var prevColor = colors[i];
+                totalColor = prevColor.Multiply(1 - reflect).Add(totalColor.Multiply(reflect));
             }
 
-            var local_color = Vector.FromColor(color)
-				.Multiply(ComputeLighting(P, normal, view, closestPrimitive.Specular));
-
-			var r = closestPrimitive.Reflect;
-			if (depth <= 0 || r <= 0)
-				return local_color;
-
-			var R = ReflectRay(view, normal);
-			var reflectedColor = TraceRay(P, R, 0.001d, double.PositiveInfinity, depth - 1);
-
-			return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
+            return totalColor;
 		}
-
-	    private (Primitive, double) ClosestIntersection(Vector O, Vector D, double tMin, double tMax)
+        
+        private (Primitive, double) ClosestIntersection(Vector O, Vector D, double tMin, double tMax)
 	    {
 	        var closest_t = double.PositiveInfinity;
 	        Primitive closestPrimitive = null;
