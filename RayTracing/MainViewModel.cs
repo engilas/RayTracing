@@ -182,7 +182,7 @@ namespace RayTracing {
 				CanvasWidth = Width,
 				CanvasHeight = Height,
 				ViewportDistance = 1,
-				RecursionDepth = 2,
+				RecursionDepth = 3,
 				//CameraRotationZ = -45,
 				//CameraRotationX = -15,
 			    //CameraRotationY = 90
