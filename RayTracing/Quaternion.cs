@@ -1,13 +1,9 @@
-﻿using RayTracing.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using RayTracing.Models;
 
 namespace RayTracing
 {
-    class Quaternion
+    internal class Quaternion
     {
         public readonly double w;
         public readonly double x;
@@ -16,8 +12,12 @@ namespace RayTracing
 
         public Quaternion(Vector v, double rotationGrad)
         {
-            double GetRad(double grad) => Math.PI / 180 * grad;
-            double t = GetRad(rotationGrad) / 2;
+            double GetRad(double grad)
+            {
+                return Math.PI / 180 * grad;
+            }
+
+            var t = GetRad(rotationGrad) / 2;
 
             v = v.Multiply(1 / v.Lenght());
 
@@ -52,7 +52,7 @@ namespace RayTracing
 
         private double norm()
         {
-            return (w * w + x * x + y * y + z * z);
+            return w * w + x * x + y * y + z * z;
         }
 
         //public static Quaternion normalise()

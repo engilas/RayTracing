@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RayTracing.Models;
 
 namespace RayTracing.Primitives
 {
-    class SurfaceCoeffs
+    internal class SurfaceCoeffs
     {
-        public double 
+        public double
             A, //x2
             B, //y2
             C, //z2
@@ -18,14 +14,17 @@ namespace RayTracing.Primitives
             F; //const
     }
 
-    class Surface : Primitive {
-	    public double 
-	        A, //x2
-	        B, //y2
-	        C, //z2
-	        D, //z
-	        E, //y
-	        F; //const
+    internal class Surface : Primitive
+    {
+        public double
+            A, //x2
+            B, //y2
+            C, //z2
+            D, //z
+            E, //y
+            F; //const
+
+        public double XMin, YMin, ZMin, XMax, YMax, ZMax;
 
         public Surface()
         {
@@ -43,30 +42,27 @@ namespace RayTracing.Primitives
             F = coeffs.F;
         }
 
-        public double XMin, YMin, ZMin, XMax, YMax, ZMax;
-
-	    public RotationMatrix Rotation { get; set; }
-	    public Vector Position { get; set; } = new Vector(0,0,0);
+        public RotationMatrix Rotation { get; set; }
+        public Vector Position { get; set; } = new Vector(0, 0, 0);
 
         public Vector GetNormal(Vector o, Vector d, double t)
         {
-	        o = new Vector(o.D1 - Position.D1, o.D2 - Position.D2, o.D3 - Position.D3);
-	        if (Rotation != null) {
-		        d = d.MultiplyMatrix(Rotation.Rotation);
-		        o = o.MultiplyMatrix(Rotation.Rotation);
-	        }
+            o = new Vector(o.D1 - Position.D1, o.D2 - Position.D2, o.D3 - Position.D3);
+            if (Rotation != null)
+            {
+                d = d.MultiplyMatrix(Rotation.Rotation);
+                o = o.MultiplyMatrix(Rotation.Rotation);
+            }
 
             var x = d.D1 * t + o.D1;
             var y = d.D2 * t + o.D2;
             var z = d.D3 * t + o.D3;
 
-	        var normal = new Vector(2 * A * x, 2 * B * y + E, 2 * C * z + D);
+            var normal = new Vector(2 * A * x, 2 * B * y + E, 2 * C * z + D);
 
-	        if (Rotation != null) {
-		        return normal.MultiplyMatrix(Rotation.RotationInv);
-	        } else {
-		        return normal;
-	        }
+            if (Rotation != null)
+                return normal.MultiplyMatrix(Rotation.RotationInv);
+            return normal;
         }
 
         public static SurfaceCoeffs GetEllipsoid(double a, double b, double c)
@@ -76,7 +72,7 @@ namespace RayTracing.Primitives
                 A = Math.Pow(a, -2),
                 B = Math.Pow(b, -2),
                 C = Math.Pow(c, -2),
-                F = -1,
+                F = -1
             };
         }
 
@@ -86,7 +82,7 @@ namespace RayTracing.Primitives
             {
                 A = Math.Pow(a, -2),
                 B = Math.Pow(b, -2),
-                D = -1,
+                D = -1
             };
         }
 
@@ -95,8 +91,8 @@ namespace RayTracing.Primitives
             return new SurfaceCoeffs
             {
                 A = Math.Pow(a, -2),
-                B = - Math.Pow(b, -2),
-                D = -1,
+                B = -Math.Pow(b, -2),
+                D = -1
             };
         }
 
@@ -106,8 +102,8 @@ namespace RayTracing.Primitives
             {
                 A = Math.Pow(a, -2),
                 B = Math.Pow(b, -2),
-                C = - Math.Pow(c, -2),
-                F = -1,
+                C = -Math.Pow(c, -2),
+                F = -1
             };
         }
 
@@ -117,8 +113,8 @@ namespace RayTracing.Primitives
             {
                 A = Math.Pow(a, -2),
                 B = Math.Pow(b, -2),
-                C = - Math.Pow(c, -2),
-                F = 1,
+                C = -Math.Pow(c, -2),
+                F = 1
             };
         }
 
@@ -128,8 +124,8 @@ namespace RayTracing.Primitives
             {
                 A = Math.Pow(a, -2),
                 B = Math.Pow(b, -2),
-                C = - Math.Pow(c, -2),
-                F = 0,
+                C = -Math.Pow(c, -2),
+                F = 0
             };
         }
 
@@ -139,7 +135,7 @@ namespace RayTracing.Primitives
             {
                 A = Math.Pow(a, -2),
                 B = Math.Pow(b, -2),
-                F = -1,
+                F = -1
             };
         }
 
@@ -148,8 +144,8 @@ namespace RayTracing.Primitives
             return new SurfaceCoeffs
             {
                 A = Math.Pow(a, -2),
-                B = - Math.Pow(b, -2),
-                F = -1,
+                B = -Math.Pow(b, -2),
+                F = -1
             };
         }
 
@@ -158,7 +154,7 @@ namespace RayTracing.Primitives
             return new SurfaceCoeffs
             {
                 A = 1,
-                E = 2 * a,
+                E = 2 * a
             };
         }
     }

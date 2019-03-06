@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RayTracing"
         mc:Ignorable="d"
-        Title="MainWindow" Height="{Binding Path=Height, Mode=TwoWay}" Width="{Binding Path=Width, Mode=TwoWay}" d:DataContext="{d:DesignInstance }">
-    <Grid >
+        Title="MainWindow" Height="{Binding Path=Height, Mode=TwoWay}" Width="{Binding Path=Width, Mode=TwoWay}"
+        d:DataContext="{d:DesignInstance }">
+    <Grid>
         <Image Source="{Binding Image}" />
     </Grid>
 </Window>

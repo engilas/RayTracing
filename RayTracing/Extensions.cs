@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracing
 {
-    static class Extensions
+    internal static class Extensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Pow2(this double val)
