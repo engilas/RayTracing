@@ -8,5 +8,6 @@ namespace RayTracing.Primitives
         public int Specular { get; set; } = -1;
         public double Reflect { get; set; }
         public bool LightTransparent { get; set; }
+        public double Refract { get; set; }
     }
 }

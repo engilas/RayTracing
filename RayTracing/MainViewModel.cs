@@ -35,7 +35,8 @@ namespace RayTracing
                         Radius = 1,
                         Color = Color.FromRgb(255, 0, 0),
                         Specular = 500,
-                        Reflect = 0.2
+                        Reflect = 0.2,
+                        Refract = 0
                     },
                     new Sphere
                     {
@@ -43,7 +44,8 @@ namespace RayTracing
                         Radius = 1,
                         Color = Color.FromRgb(0, 0, 255),
                         Specular = 500,
-                        Reflect = 0.3
+                        Reflect = 0.3,
+                        Refract = 1.7
                     },
                     //new Sphere {
                     //    Center = new Vector(-2, 0, 6),
@@ -125,16 +127,16 @@ namespace RayTracing
                         Specular = 200
                     }
                 },
-                Toruses =
-                {
-                    new Torus(0.4, 1)
-                    {
-                        Position = new Vector(-2, 0, 6),
-                        Rotation = new RotationMatrix(0, 0, 90),
-                        Color = Colors.GreenYellow,
-                        Reflect = 0.7
-                    }
-                },
+                //Toruses =
+                //{
+                //    new Torus(0.4, 1)
+                //    {
+                //        Position = new Vector(-2, 0, 6),
+                //        Rotation = new RotationMatrix(0, 0, 90),
+                //        Color = Colors.GreenYellow,
+                //        Reflect = 0.7
+                //    }
+                //},
                 Surfaces = new List<Surface>
                 {
                     new Surface(Surface.GetEllipsoid(5, 5, 5))
@@ -173,7 +175,7 @@ namespace RayTracing
                 //CameraPos = new Vector(0, 0, -2.4),
                 //CameraPos = new Vector(-10, 0, 6),
                 //CameraPos = new Vector(0, 0, -10),
-                CameraPos = new Vector(0, 0, -10),
+                CameraPos = new Vector(0, 0, 0),
                 ViewportWidth = 1,
                 ViewportHeight = 1,
                 CanvasWidth = Width,

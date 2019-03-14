@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Media;
 using RayTracing.Models;
 using RayTracing.Primitives;
@@ -38,8 +39,8 @@ namespace RayTracing
                 .multiply(new Quaternion(new Vector(1, 0, 0), _options.CameraRotationX));
 
             var result = new Color[pixelCount];
-            Parallel.For(0, pixelCount, i =>
-                    //for (int i = 0; i < pixelCount; i++)
+            //Parallel.For(0, pixelCount, i =>
+                    for (int i = 0; i < pixelCount; i++)
                 {
                     var x = i % _options.CanvasWidth - xEdge;
                     var y = i / _options.CanvasHeight - yEdge;
@@ -57,7 +58,7 @@ namespace RayTracing
 
                     result[i] = color.Clamp().ToColor();
                 }
-            );
+            //);
 
             for (var i = 0; i < pixelCount; i++)
             {
@@ -91,15 +92,73 @@ namespace RayTracing
                 y * _options.ViewportHeight / _options.CanvasHeight, _options.ViewportDistance);
         }
 
-        private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        double clamp(double v, double lo, double hi) 
+        { return Math.Max(lo, Math.Min(hi, v)); }
+
+        Vector refract(Vector I, Vector N, double ior)
         {
-            var colors = new List<Vector>();
-            var reflects = new List<double>();
+            double cosi = clamp(I.DotProduct(N), -1, 1);
+            double etai = 1, etat = ior;
+            Vector n = N.Multiply(1);
+            if (cosi < 0) { cosi = -cosi; }
+            else
+            {
+                double tmp = etai;
+                etai = etat;
+                etat = tmp;
+                //swap(etai, etat);
+                n = N.Multiply(-1);
+            }
+            double eta = etai / etat;
+            double k = 1 - eta * eta * (1 - cosi * cosi);
+            return k < 0.0 ? new Vector(0,0,0) : I.Multiply(eta).Add(n.Multiply(eta * cosi - Math.Sqrt(k)));
+        }
+
+        void fresnel(Vector I, Vector N, double ior, out double kr)
+        {
+            double cosi = clamp(I.DotProduct(N), -1, 1);
+            double etai = 1, etat = ior;
+            if (cosi > 0)
+            {
+                double tmp = etai;
+                etai = etat;
+                etat = tmp;
+                //swap(etai, etat); 
+            }
+            // Compute sini using Snell's law
+            double sint = etai / etat * Math.Sqrt(Math.Max(0.0, 1 - cosi * cosi));
+            // Total internal reflection
+            if (sint >= 1)
+            {
+                kr = 1;
+            }
+            else
+            {
+                double cost = Math.Sqrt(Math.Max(0.0, 1 - sint * sint));
+                cosi = Math.Abs(cosi);
+                double Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+                double Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+                kr = (Rs * Rs + Rp * Rp) / 2;
+            }
+        }
+
+        private Vector TraceRay(Vector O, Vector D, double tMin, double tMax, int depth, bool noRefract = false)
+        {
+            var maxRecDepth = 6;
+
+            var colors = new Vector[maxRecDepth];
+            var reflects = new double[maxRecDepth];
+            var krs = new double[maxRecDepth];
+            var refracts = new Vector[maxRecDepth];
+
+            var recursionCount = 0;
 
             void SetResult(Vector color, double refl)
             {
-                colors.Add(color);
-                reflects.Add(refl);
+                colors[recursionCount] = color;
+                reflects[recursionCount] = refl;
+                ++recursionCount;
             }
 
             for (var i = 0; i < depth; i++)
@@ -147,29 +206,71 @@ namespace RayTracing
                         color = Color.FromRgb(0, 0, 0);
                 }
 
-                var local_color = Vector.FromColor(color)
-                    .Multiply(
-                        ComputeLighting(P, normal, view, closestPrimitive.Specular));
+                //refract
+                if (closestPrimitive.Refract > 0 && !noRefract)
+                {
+                    bool outside = D.DotProduct(normal) < 0;
+                    Vector bias = normal.Multiply(0.001);
+                    double kr;
+                    //fresnel(D, normal, closestPrimitive.Refract, out kr);
 
-                //if last reflected ray
-                //if (i == depth - 1)
-                //{
-                //    normals.Add
-                //}
-                var r = closestPrimitive.Reflect;
+                    //if (outside)
+                    //{
+                    //    Vector reflectionDirection = ReflectRay(view, normal);
+                    //    Vector reflectionRayOrig = P.Add(bias);
+                    //    Vector reflectionColor;
+                    //    reflectionColor = TraceRay(reflectionRayOrig, reflectionDirection, tMin, tMax, 1, true);
+                    //    //if (TraceRayOneHit(reflectionRayOrig, reflectionDirection, tMin, tMax, reflectionColor))
+                    //    //{
+                    //    refracts[recursionCount] = reflectionColor;// [recursionCount] = reflectionColor;
+                    //    //    isRefract[recursionCount] = true;
+                    //    krs[recursionCount] = kr;
+                    //    //}
+                    //}
 
-                colors.Add(local_color);
-                reflects.Add(r);
+                    //if (kr < 1)
+                    {
+                        --i;
+                        Vector refractionDirection = refract(D, normal, closestPrimitive.Refract).Multiply(1 / normal.Lenght());
+                        Vector refractionRayOrig =  P.Add(bias.Multiply(outside ? -1 : 1));
+                        //refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, depth + 1); 
+                        O = refractionRayOrig;
+                        D = refractionDirection;
+                        //break;
+                    }
+                    //else
+                    //{
+                    //    return new Vector(1, 1, 1);
+                    //}
+                }
+                else
+                {
+                    var local_color = Vector.FromColor(color)
+                        .Multiply(
+                            ComputeLighting(P, normal, view, closestPrimitive.Specular));
 
-                if (r <= 0 || depth == 1)
-                    break;
+                    //if last reflected ray
+                    //if (i == depth - 1)
+                    //{
+                    //    normals.Add
+                    //}
+                    var r = closestPrimitive.Reflect;
 
-                //setup for next iteration
-                O = P;
-                D = ReflectRay(view, normal);
-                ;
-                tMin = 0.001d;
-                tMax = double.PositiveInfinity;
+                    SetResult(local_color, r);
+
+                    if (r <= 0 || depth == 1)
+                        break;
+
+                    //setup for next iteration
+                    O = P;
+                    D = ReflectRay(view, normal);
+                    ;
+                    tMin = 0.001d;
+                    tMax = double.PositiveInfinity;
+                }
+                //
+
+                
 
 
                 //var reflectedColor = TraceRay(P, R, 0.001d, double.PositiveInfinity, depth - 1);
@@ -177,19 +278,36 @@ namespace RayTracing
                 //return local_color.Multiply(1 - r).Add(reflectedColor.Multiply(r));
             }
 
-            var colorsCount = colors.Count;
-            var totalColor = colors.Last();
-            if (depth == 1 || colorsCount == 1)
-                return totalColor;
+            if (recursionCount <= 1)
+                return colors[0];
 
-            for (var i = colors.Count - 2; i >= 0; i--)
+            var totalColor = colors[recursionCount - 1];
+
+            for (int i = recursionCount - 2; i >= 0; i--)
             {
-                var reflect = reflects[i];
+                double reflect = reflects[i];
                 var prevColor = colors[i];
                 totalColor = prevColor.Multiply(1 - reflect).Add(totalColor.Multiply(reflect));
+                //if (isRefract[i])
+                    //return vec4(1, 0, 0, 0);
+                //totalColor = totalColor * krs[i] + refracts[i] * (1 - krs[i]);
             }
 
             return totalColor;
+
+            //var colorsCount = colors.Length;
+            //var totalColor = colors.Last();
+            //if (depth == 1 || colorsCount == 1)
+            //    return totalColor;
+
+            //for (var i = colors.Length - 2; i >= 0; i--)
+            //{
+            //    var reflect = reflects[i];
+            //    var prevColor = colors[i];
+            //    totalColor = prevColor.Multiply(1 - reflect).Add(totalColor.Multiply(reflect));
+            //}
+
+            //return totalColor;
         }
 
         private (Primitive, double) ClosestIntersection(Vector O, Vector D, double tMin, double tMax)
