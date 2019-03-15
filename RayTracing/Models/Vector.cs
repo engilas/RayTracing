@@ -80,5 +80,7 @@ namespace RayTracing.Models
         {
             return new Vector(1 / D1, 1 / D2, 1 / D3);
         }
+
+        public Vector Normalize() => this.Multiply(1 / this.Lenght());
     }
 }

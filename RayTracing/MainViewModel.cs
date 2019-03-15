@@ -40,6 +40,15 @@ namespace RayTracing
                     },
                     new Sphere
                     {
+                        Center = new Vector(0, 0, 3),
+                        Radius = 0.5,
+                        Color = Color.FromRgb(255, 0, 0),
+                        Specular = 500,
+                        Reflect = 0.2,
+                        Refract = 1.5
+                    },
+                    new Sphere
+                    {
                         Center = new Vector(2, 0, 6),
                         Radius = 1,
                         Color = Color.FromRgb(0, 0, 255),
@@ -116,17 +125,17 @@ namespace RayTracing
                         Specular = 50
                     }
                 },
-                Boxes = new List<Box>
-                {
-                    new Box
-                    {
-                        Color = Color.FromRgb(255, 147, 0),
-                        Min = new Vector(3.5, 0.3, 6),
-                        Max = new Vector(4.5, 3.5, 7),
-                        Reflect = 0.2,
-                        Specular = 200
-                    }
-                },
+                //Boxes = new List<Box>
+                //{
+                //    new Box
+                //    {
+                //        Color = Color.FromRgb(255, 147, 0),
+                //        Min = new Vector(3.5, 0.3, 6),
+                //        Max = new Vector(4.5, 3.5, 7),
+                //        Reflect = 0.2,
+                //        Specular = 200
+                //    }
+                //},
                 //Toruses =
                 //{
                 //    new Torus(0.4, 1)
@@ -137,32 +146,32 @@ namespace RayTracing
                 //        Reflect = 0.7
                 //    }
                 //},
-                Surfaces = new List<Surface>
-                {
-                    new Surface(Surface.GetEllipsoid(5, 5, 5))
-                    {
-                        Color = Color.FromRgb(255, 0, 235),
-                        Reflect = 0.4,
-                        Specular = 200,
+                //Surfaces = new List<Surface>
+                //{
+                //    new Surface(Surface.GetEllipsoid(5, 5, 5))
+                //    {
+                //        Color = Color.FromRgb(255, 0, 235),
+                //        Reflect = 0.4,
+                //        Specular = 200,
 
-                        Position = new Vector(0, 0, 5),
-                        //Rotation = new RotationMatrix(-90, 0, 0)
-                        ZMin = -2,
-                        XMin = -1,
-                        XMax = 1
-                    }
-                },
-                Disks = new List<Disk>
-                {
-                    new Disk(1, 1, 1)
-                    {
-                        Color = Colors.Chocolate,
-                        Reflect = 0.1,
-                        Specular = 100,
-                        Position = new Vector(2, 0, 0),
-                        Rotation = new RotationMatrix(-35, 0, 0)
-                    }
-                }
+                //        Position = new Vector(0, 0, 5),
+                //        //Rotation = new RotationMatrix(-90, 0, 0)
+                //        ZMin = -2,
+                //        XMin = -1,
+                //        XMax = 1
+                //    }
+                //},
+                //Disks = new List<Disk>
+                //{
+                //    new Disk(1, 1, 1)
+                //    {
+                //        Color = Colors.Chocolate,
+                //        Reflect = 0.1,
+                //        Specular = 100,
+                //        Position = new Vector(2, 0, 0),
+                //        Rotation = new RotationMatrix(-35, 0, 0)
+                //    }
+                //}
             };
 
             var options = new RenderOptions

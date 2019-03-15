@@ -200,8 +200,8 @@ namespace RayTracing
                 var color = closestPrimitive.Color;
                 if (closestPrimitive is Plane)
                 {
-                    var x = (int) Math.Round(O.D1 + D.D1 * closest_t) % 2;
-                    var z = (int) Math.Round(O.D3 + D.D3 * closest_t) % 2;
+                    var x = (int)Math.Round(O.D1 + D.D1 * closest_t) % 2;
+                    var z = (int)Math.Round(O.D3 + D.D3 * closest_t) % 2;
                     if (x == z)
                         color = Color.FromRgb(0, 0, 0);
                 }
@@ -212,26 +212,26 @@ namespace RayTracing
                     bool outside = D.DotProduct(normal) < 0;
                     Vector bias = normal.Multiply(0.001);
                     double kr;
-                    //fresnel(D, normal, closestPrimitive.Refract, out kr);
+                    fresnel(D, normal, closestPrimitive.Refract, out kr);
 
-                    //if (outside)
-                    //{
-                    //    Vector reflectionDirection = ReflectRay(view, normal);
-                    //    Vector reflectionRayOrig = P.Add(bias);
-                    //    Vector reflectionColor;
-                    //    reflectionColor = TraceRay(reflectionRayOrig, reflectionDirection, tMin, tMax, 1, true);
-                    //    //if (TraceRayOneHit(reflectionRayOrig, reflectionDirection, tMin, tMax, reflectionColor))
-                    //    //{
-                    //    refracts[recursionCount] = reflectionColor;// [recursionCount] = reflectionColor;
-                    //    //    isRefract[recursionCount] = true;
-                    //    krs[recursionCount] = kr;
-                    //    //}
-                    //}
+                    if (outside)
+                    {
+                        Vector reflectionDirection = ReflectRay(view, normal);
+                        Vector reflectionRayOrig = P.Add(bias);
+                        Vector reflectionColor;
+                        reflectionColor = TraceRay(reflectionRayOrig, reflectionDirection, tMin, tMax, 1, true);
+                        //if (TraceRayOneHit(reflectionRayOrig, reflectionDirection, tMin, tMax, reflectionColor))
+                        //{
+                        refracts[recursionCount] = reflectionColor;// [recursionCount] = reflectionColor;
+                        //    isRefract[recursionCount] = true;
+                        krs[recursionCount] = kr;
+                        //}
+                    }
 
                     //if (kr < 1)
                     {
                         --i;
-                        Vector refractionDirection = refract(D, normal, closestPrimitive.Refract).Multiply(1 / normal.Lenght());
+                        Vector refractionDirection = refract(D, normal, closestPrimitive.Refract).Normalize();
                         Vector refractionRayOrig =  P.Add(bias.Multiply(outside ? -1 : 1));
                         //refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, depth + 1); 
                         O = refractionRayOrig;
@@ -288,6 +288,10 @@ namespace RayTracing
                 double reflect = reflects[i];
                 var prevColor = colors[i];
                 totalColor = prevColor.Multiply(1 - reflect).Add(totalColor.Multiply(reflect));
+                if (refracts[i] != null)
+                {
+                    totalColor = totalColor.Multiply(1 - krs[i]).Add(refracts[i].Multiply(krs[i]));
+                }
                 //if (isRefract[i])
                     //return vec4(1, 0, 0, 0);
                 //totalColor = totalColor * krs[i] + refracts[i] * (1 - krs[i]);
