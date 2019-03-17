@@ -82,5 +82,25 @@ namespace RayTracing.Models
         }
 
         public Vector Normalize() => this.Multiply(1 / this.Lenght());
+
+        public static Vector operator+ (Vector v1, Vector v2)
+        {
+            return v1.Add(v2);
+        }
+
+        public static Vector operator- (Vector v1, Vector v2)
+        {
+            return v1.Add(v2 * -1);
+        }
+
+        public static Vector operator* (Vector v1, double k)
+        {
+            return v1.Multiply(k);
+        }
+
+        public static Vector operator* (double k, Vector v1)
+        {
+            return v1.Multiply(k);
+        }
     }
 }

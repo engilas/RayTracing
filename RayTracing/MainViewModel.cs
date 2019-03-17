@@ -29,15 +29,15 @@ namespace RayTracing
             {
                 Spheres = new List<Sphere>
                 {
-                    new Sphere
-                    {
-                        Center = new Vector(0, -1, 5),
-                        Radius = 1,
-                        Color = Color.FromRgb(255, 0, 0),
-                        Specular = 500,
-                        Reflect = 0.2,
-                        Refract = 0
-                    },
+                    //new Sphere
+                    //{
+                    //    Center = new Vector(0, -1, 5),
+                    //    Radius = 1,
+                    //    Color = Color.FromRgb(255, 0, 0),
+                    //    Specular = 500,
+                    //    Reflect = 0.2,
+                    //    Refract = 0
+                    //},
                     new Sphere
                     {
                         Center = new Vector(0, 0, 3),
@@ -113,17 +113,17 @@ namespace RayTracing
                         Reflect = 0.3,
                         Specular = 100
                     },
-                    new Plane(
-                        0,
-                        0,
-                        -1,
-                        15
-                    )
-                    {
-                        Color = Color.FromRgb(110, 157, 153),
-                        Reflect = 0.3,
-                        Specular = 50
-                    }
+                    //new Plane(
+                    //    0,
+                    //    0,
+                    //    -1,
+                    //    15
+                    //)
+                    //{
+                    //    Color = Color.FromRgb(110, 157, 153),
+                    //    Reflect = 0.3,
+                    //    Specular = 50
+                    //}
                 },
                 //Boxes = new List<Box>
                 //{
@@ -184,16 +184,16 @@ namespace RayTracing
                 //CameraPos = new Vector(0, 0, -2.4),
                 //CameraPos = new Vector(-10, 0, 6),
                 //CameraPos = new Vector(0, 0, -10),
-                CameraPos = new Vector(0, 0, 0),
+                CameraPos = new Vector(2, 0, 3.5),
                 ViewportWidth = 1,
                 ViewportHeight = 1,
                 CanvasWidth = Width,
                 CanvasHeight = Height,
                 ViewportDistance = 1,
-                RecursionDepth = 3
+                RecursionDepth = 3,
                 //CameraRotationZ = -45,
                 //CameraRotationX = -15,
-                //CameraRotationY = 90
+                //CameraRotationY = 180
             };
 
             Console.WriteLine("Started");

@@ -195,7 +195,8 @@ namespace RayTracing
                 if (closestPrimitive is Disk disk) normal = disk.GetNormal();
 
                 normal = normal.Multiply(1 / normal.Lenght()); //unit vector
-                if (normal.DotProduct(D) > 0) normal = normal.Multiply(-1);
+                if (closestPrimitive is Plane)
+                    if (normal.DotProduct(D) > 0) normal = normal.Multiply(-1);
 
                 var color = closestPrimitive.Color;
                 if (closestPrimitive is Plane)
@@ -320,18 +321,25 @@ namespace RayTracing
             Primitive closestPrimitive = null;
             foreach (var sphere in _scene.Spheres)
             {
-                var (t1, t2) = IntersectRaySphere(O, D, sphere);
-                if (t1 >= tMin && t1 <= tMax && t1 < closest_t)
+                if (intersectSphere(O, D, tMin, sphere, out var t))
                 {
-                    closest_t = t1;
-                    closestPrimitive = sphere;
+                    if (t <= tMax && t < closest_t)
+                    {
+                        closest_t = t;
+                        closestPrimitive = sphere;
+                    }
                 }
+                //if (t1 >= tMin && t1 <= tMax && t1 < closest_t)
+                //{
+                //    closest_t = t1;
+                //    closestPrimitive = sphere;
+                //}
 
-                if (t2 >= tMin && t2 <= tMax && t2 < closest_t)
-                {
-                    closest_t = t2;
-                    closestPrimitive = sphere;
-                }
+                //if (t2 >= tMin && t2 <= tMax && t2 < closest_t)
+                //{
+                //    closest_t = t2;
+                //    closestPrimitive = sphere;
+                //}
             }
 
             foreach (var plane in _scene.Planes)
@@ -391,22 +399,38 @@ namespace RayTracing
             return (closestPrimitive, closest_t);
         }
 
-        private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere)
+        bool intersectSphere(Vector o, Vector d, double tMin, Sphere sphere, out double t)
         {
-            var C = sphere.Center;
-            var r = sphere.Radius;
-            var oc = O.Subtract(C);
-
-            var k1 = D.DotProduct(D);
-            var k2 = 2 * oc.DotProduct(D);
-            var k3 = oc.DotProduct(oc) - r * r;
-            var discr = k2 * k2 - 4 * k1 * k3;
-            if (discr < 0) return (double.PositiveInfinity, double.PositiveInfinity);
-
-            var t1 = (-k2 + Math.Sqrt(discr)) / (2 * k1);
-            var t2 = (-k2 - Math.Sqrt(discr)) / (2 * k1);
-            return (t1, t2);
+            bool result = false;
+            Vector v = o - sphere.Center;
+            var radius = sphere.Radius;
+            var b = v.DotProduct(d);
+            var c = v.DotProduct(v) - radius * radius;
+            t = b * b - c;
+            if (t > 0.0)
+            {
+                t = -b - Math.Sqrt(t);
+                result = (t > 0.0);
+            }
+            return result;
         }
+
+        //private (double, double) IntersectRaySphere(Vector O, Vector D, Sphere sphere)
+        //{
+        //    var C = sphere.Center;
+        //    var r = sphere.Radius;
+        //    var oc = O.Subtract(C);
+
+        //    var k1 = D.DotProduct(D);
+        //    var k2 = 2 * oc.DotProduct(D);
+        //    var k3 = oc.DotProduct(oc) - r * r;
+        //    var discr = k2 * k2 - 4 * k1 * k3;
+        //    if (discr < 0) return (double.PositiveInfinity, double.PositiveInfinity);
+
+        //    var t1 = (-k2 + Math.Sqrt(discr)) / (2 * k1);
+        //    var t2 = (-k2 - Math.Sqrt(discr)) / (2 * k1);
+        //    return (t1, t2);
+        //}
 
         private double IntersectRayPlane(Vector O, Vector D, Plane S)
         {
