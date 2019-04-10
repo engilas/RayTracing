@@ -7,10 +7,10 @@ using System.Windows.Media.Imaging;
 
 namespace RayTracing
 {
-    class Canvas : ICanvas
+    internal class Canvas : ICanvas
     {
-        private readonly int _width;
         private readonly int _height;
+        private readonly int _width;
         private WriteableBitmap _image;
 
         public Canvas(int width, int height)
@@ -20,17 +20,18 @@ namespace RayTracing
             InitializeImage();
         }
 
-	    public void DrawPoint(int x, int y, Color color) {
-		    var xScale = _width / 2f + x;
-		    var yScale = _height / 2f - y - 1;
+        public void DrawPoint(int x, int y, Color color)
+        {
+            var xScale = _width / 2f + x;
+            var yScale = _height / 2f - y - 1;
 
-		    var colorData = new byte [] {color.B, color.G, color.R, 0};
+            var colorData = new byte[] {color.B, color.G, color.R, 0};
 
-		    var rect = new Int32Rect((int) Math.Round(xScale), (int) Math.Round(yScale), 1, 1);
-		    _image.WritePixels(rect, colorData, 4, 0);
-	    }
+            var rect = new Int32Rect((int) Math.Round(xScale), (int) Math.Round(yScale), 1, 1);
+            _image.WritePixels(rect, colorData, 4, 0);
+        }
 
-	    public void ClearImage()
+        public void ClearImage()
         {
             InitializeImage();
         }
@@ -42,9 +43,9 @@ namespace RayTracing
 
         public byte[] GetBytes()
         {
-            int size = _width * _height * _image.Format.BitsPerPixel / 8;
-            byte[] arr = new byte[size];
-            IntPtr buffer = _image.BackBuffer;
+            var size = _width * _height * _image.Format.BitsPerPixel / 8;
+            var arr = new byte[size];
+            var buffer = _image.BackBuffer;
             Marshal.Copy(buffer, arr, 0, size);
             return arr;
         }

@@ -3,16 +3,17 @@
 namespace RayTracing
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
-	    private MainViewModel _viewModel;
+    public partial class MainWindow : Window
+    {
+        private readonly MainViewModel _viewModel;
 
         public MainWindow()
         {
             InitializeComponent();
-	        _viewModel = new MainViewModel();
-	        this.DataContext = _viewModel;
+            _viewModel = new MainViewModel();
+            DataContext = _viewModel;
         }
     }
 }
