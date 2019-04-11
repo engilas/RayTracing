@@ -16,3 +16,11 @@ Contains following geometric primititives:
   - Elliptic paraboloid
   - Hyperbolic paraboloid
   - Elliptic hyperboloid
+
+Screenshots:
+
+![Screenshot](/screenshots/conus-cyl.jpg)
+
+![Screenshot](/screenshots/r9g_wuP5L7k.jpg)
+
+![Screenshot](/screenshots/5xc8geFprv4.jpg)
