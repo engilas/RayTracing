@@ -29,14 +29,14 @@ namespace RayTracing
             {
                 Spheres = new List<Sphere>
                 {
-                    new Sphere
-                    {
-                        Center = new Vector(0, -1, 5),
-                        Radius = 1,
-                        Color = Color.FromRgb(255, 0, 0),
-                        Specular = 500,
-                        Reflect = 0.2
-                    },
+//                    new Sphere
+//                    {
+//                        Center = new Vector(0, -1, 5),
+//                        Radius = 1,
+//                        Color = Color.FromRgb(255, 0, 0),
+//                        Specular = 500,
+//                        Reflect = 0.2
+//                    },
                     new Sphere
                     {
                         Center = new Vector(2, 0, 6),
@@ -119,8 +119,8 @@ namespace RayTracing
                     new Box
                     {
                         Color = Color.FromRgb(255, 147, 0),
-                        Min = new Vector(3.5, 0.3, 6),
-                        Max = new Vector(4.5, 3.5, 7),
+                        Min = new Vector(-1.5, 0.3, 7),
+                        Max = new Vector(-0.5, 2.5, 8),
                         Reflect = 0.2,
                         Specular = 200
                     }
@@ -137,30 +137,49 @@ namespace RayTracing
                 },
                 Surfaces = new List<Surface>
                 {
-                    new Surface(Surface.GetEllipsoid(5, 5, 5))
+//                    new Surface(Surface.GetEllipsoid(5, 5, 5))
+//                    {
+//                        Color = Color.FromRgb(255, 0, 235),
+//                        Reflect = 0.4,
+//                        Specular = 200,
+//
+//                        Position = new Vector(0, 0, 5),
+//                        //Rotation = new RotationMatrix(-90, 0, 0)
+//                        ZMin = -2,
+//                        XMin = -1,
+//                        XMax = 1
+//                    },
+                    new Surface(Surface.GetEllipticCone(1/3d, 1/3d, 1d))
                     {
-                        Color = Color.FromRgb(255, 0, 235),
-                        Reflect = 0.4,
+                        Color = Color.FromRgb(234, 17, 82),
+                        Reflect = 0.2,
                         Specular = 200,
-
-                        Position = new Vector(0, 0, 5),
-                        //Rotation = new RotationMatrix(-90, 0, 0)
-                        ZMin = -2,
-                        XMin = -1,
-                        XMax = 1
+                        Position = new Vector(-5, 4, 6),
+                        Rotation = new RotationMatrix(90, 0, 0),
+                        ZMin = 0
+                    }, new Surface(Surface.GetEllipticCylinder(1/2d, 1/2d))
+                    {
+                        Color = Color.FromRgb(204, 255, 0),
+                        Reflect = 0.2,
+                        Specular = 200,
+                        Position = new Vector(0, 0, 6),
+                        Rotation = new RotationMatrix(90, 0, 0),
+                        ZMin = -1,
+                        ZMax = 2
+                        
                     }
                 },
-                Disks = new List<Disk>
-                {
-                    new Disk(1, 1, 1)
-                    {
-                        Color = Colors.Chocolate,
-                        Reflect = 0.1,
-                        Specular = 100,
-                        Position = new Vector(2, 0, 0),
-                        Rotation = new RotationMatrix(-35, 0, 0)
-                    }
-                }
+//                Disks = new List<Disk>
+//                {
+//                    new Disk(1, 1, 1)
+//                    {
+//                        Color = Colors.Chocolate,
+//                        Reflect = 0.1,
+//                        Specular = 100,
+//                        Position = new Vector(2, 0, 0),
+//                        Rotation = new RotationMatrix(-35, 0, 0)
+//                    }
+//                }
             };
 
             var options = new RenderOptions
@@ -173,16 +192,16 @@ namespace RayTracing
                 //CameraPos = new Vector(0, 0, -2.4),
                 //CameraPos = new Vector(-10, 0, 6),
                 //CameraPos = new Vector(0, 0, -10),
-                CameraPos = new Vector(0, 0, -10),
+                CameraPos = new Vector(3.5, 1.5, -2),
                 ViewportWidth = 1,
                 ViewportHeight = 1,
                 CanvasWidth = Width,
                 CanvasHeight = Height,
                 ViewportDistance = 1,
-                RecursionDepth = 2
+                RecursionDepth = 2,
                 //CameraRotationZ = -45,
-                //CameraRotationX = -15,
-                //CameraRotationY = 90
+                CameraRotationX = -5,
+                CameraRotationY = 30
             };
 
             Console.WriteLine("Started");
