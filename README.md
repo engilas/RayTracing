@@ -16,6 +16,11 @@ Contains following geometric primititives:
   - Elliptic paraboloid
   - Hyperbolic paraboloid
   - Elliptic hyperboloid
+  
+  
+Requirements:
+
+- Net Framework 4.6.1, WPF
 
 Screenshots:
 
