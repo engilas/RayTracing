@@ -19,6 +19,13 @@ namespace RayTracing.Models
             D3 = v3;
         }
 
+        public Vector(Vector v)
+        {
+            D1 = v.D1;
+            D2 = v.D2;
+            D3 = v.D3;
+        }
+
         public Vector Add(Vector v)
         {
             return new Vector(D1 + v.D1, D2 + v.D2, D3 + v.D3);
@@ -79,6 +86,12 @@ namespace RayTracing.Models
         public Vector Invert()
         {
             return new Vector(1 / D1, 1 / D2, 1 / D3);
+        }
+
+        public bool Between(Vector min, Vector max)
+        {
+            return D1 > min.D1 && D2 > min.D2 && D3 > min.D3
+                   && D1 < max.D1 && D2 < max.D2 && D3 < max.D3;
         }
     }
 }

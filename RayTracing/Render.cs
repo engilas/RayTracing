@@ -242,6 +242,9 @@ namespace RayTracing
 
         private double IntersectRaySurface(Surface surface, Vector O, Vector D)
         {
+            var origO = new Vector(O);
+            var origD = new Vector(D);
+
             var a = surface.A;
             var b = surface.B;
             var c = surface.C;
@@ -296,29 +299,25 @@ namespace RayTracing
                 max = t1;
             }
 
-            if (!CheckSurfaceEdges(D.D1, O.D1, ref min, ref max, surface.XMin, surface.XMax, epsilon))
-                return double.PositiveInfinity;
+            var vMin = new Vector(surface.XMin, surface.YMin, surface.ZMin);
+            var vMax = new Vector(surface.XMax, surface.YMax, surface.ZMax);
 
-            if (!CheckSurfaceEdges(D.D2, O.D2, ref min, ref max, surface.YMin, surface.YMax, epsilon))
-                return double.PositiveInfinity;
-
-            if (!CheckSurfaceEdges(D.D3, O.D3, ref min, ref max, surface.ZMin, surface.ZMax, epsilon))
+            if (!CheckSurfaceEdges(origD, origO, ref min, ref max, vMin, vMax, epsilon))
                 return double.PositiveInfinity;
 
             return min;
         }
 
-        private bool CheckSurfaceEdges(double d, double o, ref double tMin, ref double tMax, double axisMin,
-            double axisMax, double epsilon)
+        private bool CheckSurfaceEdges(Vector d, Vector o, ref double tMin, ref double tMax, Vector min, Vector max, double epsilon)
         {
-            var axisValue = d * tMin + o;
-            if (axisValue > axisMax || axisValue < axisMin)
+            var pt = d.Multiply(tMin).Add(o);
+            if (!pt.Between(min, max))
             {
                 if (tMax < epsilon) return false;
 
-                axisValue = d * tMax + o;
+                pt = d.Multiply(tMax).Add(o);
 
-                if (axisValue > axisMax || axisValue < axisMin) return false;
+                if (!pt.Between(min, max)) return false;
 
                 Swap(ref tMin, ref tMax);
             }
