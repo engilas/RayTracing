@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace RayTracing.Models
 {
-    internal class Vector
+    internal struct Vector
     {
         public readonly double D1, D2, D3;
 

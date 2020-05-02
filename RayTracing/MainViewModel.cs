@@ -156,7 +156,7 @@ namespace RayTracing
                         Specular = 200,
                         Position = new Vector(-5, 4, 6),
                         Rotation = new RotationMatrix(90, 0, 0),
-                        ZMin = 0
+                        YMax = 4
                     }, new Surface(Surface.GetEllipticCylinder(1/2d, 1/2d))
                     {
                         Color = Color.FromRgb(204, 255, 0),
@@ -164,8 +164,8 @@ namespace RayTracing
                         Specular = 200,
                         Position = new Vector(0, 0, 6),
                         Rotation = new RotationMatrix(90, 0, 0),
-                        ZMin = -1,
-                        ZMax = 2
+                        YMin = -1,
+                        YMax = 1
                         
                     }
                 },

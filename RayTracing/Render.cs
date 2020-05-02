@@ -74,7 +74,7 @@ namespace RayTracing
             var view = D.Multiply(-1);
             var P = O.Add(D.Multiply(closest_t));
 
-            Vector normal = null;
+            Vector normal = new Vector();
 
             if (closestPrimitive is Plane plane) normal = plane.Normal;
 
@@ -422,7 +422,7 @@ namespace RayTracing
         private double ComputeLighting(Vector point, Vector normal, Vector view, int specular)
         {
             var i = 0.0;
-            Vector L = null;
+            Vector L = new Vector();
             foreach (var light in _scene.Lights)
                 if (light.Type == LightType.Ambient)
                 {
